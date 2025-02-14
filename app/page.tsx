@@ -1,153 +1,97 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MetricsCard } from "@/components/metrics-card";
-import { StatsChart } from "@/components/stats-chart";
-import { VaultTable } from "@/components/vault-table";
-import {
-  BarChart3,
-  ChevronDown,
-  Globe,
-  Home,
-  LayoutDashboard,
-  LifeBuoy,
-  Menu,
-  Settings,
-  Wallet,
-} from "lucide-react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useState } from "react";
 
-export default function Page() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+      console.log({ result });
+
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        // Redirect to home page on successful login
+        window.location.href = "/";
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setError("An unexpected error occurred. Please try again.");
+    }
+  };
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden">
-      <aside
-        className={`${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } fixed inset-y-0 left-0 z-50 w-64 overflow-y-auto transition-transform duration-300 transform lg:translate-x-0 border-r bg-background/50 backdrop-blur lg:static lg:w-64 flex-shrink-0`}
-      >
-        <div className="flex h-16 items-center gap-2 border-b px-6">
-          <Wallet className="h-6 w-6" />
-          <span className="font-bold">Vaultify</span>
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* Left side with illustration */}
+      <div className="bg-[url('https://images.unsplash.com/photo-1634638023542-ece6e86710ec?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8ODR8fHNoaXBwaW5nfGVufDB8fDB8fHww')] bg-cover bg-center relative hidden lg:flex flex-col items-center justify-center p-8 bg-[#B5CCBE] text-white">
+        <div className="max-w-md mx-auto text-center space-y-6">
+          <h2 className="text-2xl font-medium">Maecenas mattis egestas</h2>
+          <p className="text-sm text-white/80">
+            Eidum et malesuada fames ac ante ipsum primis in faucibus
+            suspendisse porta
+          </p>
         </div>
-        <div className="px-4 py-4">
-          <Input placeholder="Search" className="bg-background/50" />
-        </div>
-        <nav className="space-y-2 px-2">
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <LayoutDashboard className="h-4 w-4" />
-            Dashboard
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Statistics & Income
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <Globe className="h-4 w-4" />
-            Market
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <Home className="h-4 w-4" />
-            Funding
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <Wallet className="h-4 w-4" />
-            Yield Vaults
-            <ChevronDown className="ml-auto h-4 w-4" />
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <LifeBuoy className="h-4 w-4" />
-            Support
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-2">
-            <Settings className="h-4 w-4" />
-            Settings
-          </Button>
-        </nav>
-      </aside>
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between p-4 lg:hidden">
-          <button
-            className="p-2 bg-background/50 backdrop-blur rounded-md"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-          <h1 className="text-xl font-bold">Vaultify</h1>
-          <div className="w-6"></div> {/* Placeholder for balance */}
-        </header>
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold">Overview</h1>
-              <div className="text-sm text-muted-foreground">
-                Aug 13, 2023 - Aug 18, 2023
+      </div>
+
+      {/* Right side with login form */}
+      <div className="flex flex-col items-center justify-center p-8">
+        <div className="w-full max-w-sm space-y-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-script mb-6">DJK International</h1>
+            <h2 className="text-xl text-gray-600">
+              Welcome to DJK International
+            </h2>
+          </div>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <label className="text-sm text-gray-500" htmlFor="email">
+                Users name or Email
+              </label>
+              <Input
+                id="email"
+                defaultValue="David Brooks"
+                className="w-full p-2 border rounded"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm text-gray-500" htmlFor="password">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                defaultValue="password"
+                className="w-full p-2 border rounded"
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div className="text-right">
+                <Link
+                  href="#"
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Forget password?
+                </Link>
               </div>
             </div>
-            <Button variant="outline" className="gap-2 w-full sm:w-auto">
-              Ethereum Network
-              <ChevronDown className="h-4 w-4" />
+            <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white">
+              Sign in
             </Button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MetricsCard
-              title="Your Balance"
-              value="$74,892"
-              change={{
-                value: "$1,340",
-                percentage: "-2.1%",
-                isPositive: false,
-              }}
-            />
-            <MetricsCard
-              title="Your Deposits"
-              value="$54,892"
-              change={{
-                value: "$1,340",
-                percentage: "+13.2%",
-                isPositive: true,
-              }}
-            />
-            <MetricsCard
-              title="Accrued Yield"
-              value="$20,892"
-              change={{
-                value: "$1,340",
-                percentage: "+1.2%",
-                isPositive: true,
-              }}
-            />
-          </div>
-          <Card className="mt-6 p-6">
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold">General Statistics</h2>
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="ghost">
-                  Today
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Last week
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Last month
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Last 6 month
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Year
-                </Button>
-              </div>
-            </div>
-            <StatsChart />
-          </Card>
-          <div className="mt-6">
-            <VaultTable />
-          </div>
-        </main>
+          </form>
+        </div>
       </div>
     </div>
   );
