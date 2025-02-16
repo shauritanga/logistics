@@ -3,32 +3,21 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { MetricsCard } from "@/components/metrics-card";
 import { StatsChart } from "@/components/stats-chart";
 import { VaultTable } from "@/components/vault-table";
-import {
-  BarChart3,
-  ChevronDown,
-  Globe,
-  Home,
-  LayoutDashboard,
-  LifeBuoy,
-  Menu,
-  Settings,
-  Wallet,
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 export default function Page() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden">
+    <div className="flex h-screen bg-white/20 dark:bg-black text-white overflow-hidden">
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <h1 className="text-2xl font-bold">Overview</h1>
+              <h1 className="text-2xl font-bold text-black dark:text-white">
+                Overview
+              </h1>
               <div className="text-sm text-muted-foreground">
                 Aug 13, 2023 - Aug 18, 2023
               </div>

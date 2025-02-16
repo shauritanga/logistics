@@ -54,7 +54,7 @@ export function StatsChart() {
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#ff6b00"
+            stroke="#f38633"
             strokeWidth={2}
             dot={false}
           />

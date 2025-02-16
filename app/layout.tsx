@@ -1,9 +1,14 @@
-import "@/styles/globals.css";
-import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
-import type React from "react";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SessionProvider } from "next-auth/react";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const metadata = {
+  title: "DJK International Dashboard",
+  description: "A modern dashboard with theme switching",
+};
 
 export default function RootLayout({
   children,
@@ -11,12 +16,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      </head>
-      <body className={`${inter.className} h-full`}>
-        <SessionProvider>{children}</SessionProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>{children}</SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
