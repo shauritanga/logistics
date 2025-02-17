@@ -1,10 +1,34 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, ObjectId } from "mongoose";
 
-export interface IFile extends Document {
-  _id: string;
-}
+const containerSchema = new mongoose.Schema({
+  containerNumber: { type: String, required: true },
+  sealNumber: { type: String, required: true },
+  descriptionOfGoods: {
+    quantity: { type: Number, required: true },
+    weight: {
+      gross: { type: Number, required: true },
+      net: { type: Number, required: true },
+    },
+    dimensions: { type: String },
+    marksAndNumbers: { type: String },
+    natureOfGoods: { type: String, required: true },
+  },
+});
 
-const fileSchema = new Schema<IFile>({});
+const billOfLadingSchema = new mongoose.Schema(
+  {
+    billOfLadingNumber: { type: String, required: true, unique: true },
+    containers: [containerSchema],
+    portOfLoading: { type: String, required: true },
+    portOfDischarge: { type: String, required: true },
+    placeOfDelivery: { type: String, required: true },
+    freight: { type: Number, required: true },
+    insurance: { type: String },
+  },
+  { timestamps: true }
+);
 
-export default mongoose.models?.File ||
-  mongoose.model<IFile>("File", fileSchema);
+const BillOfLading =
+  mongoose.models.BillOfLading ||
+  mongoose.model("BillOfLading", billOfLadingSchema);
+export default BillOfLading;

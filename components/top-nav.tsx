@@ -20,7 +20,6 @@ interface BreadcrumbItem {
 
 export default function TopNav() {
   const breadcrumbs: BreadcrumbItem[] = [
-    { label: "KokonutUI", href: "/" },
     { label: "Dashboard", href: "/dashboard" },
   ];
 
