@@ -1,87 +1,20 @@
-"use client";
+import DashboardStats from "@/components/DashboardStats";
+import RecentBillOfLanding from "@/components/RecentBillOfLanding";
+import RecentInvoices from "@/components/RecentInvoice";
+import { WorkProgress } from "@/components/WorkProgress";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { MetricsCard } from "@/components/metrics-card";
-import { StatsChart } from "@/components/stats-chart";
-import { VaultTable } from "@/components/vault-table";
-import { ChevronDown } from "lucide-react";
-
-export default function Page() {
+export default function Dashboard() {
   return (
-    <div className="flex h-screen bg-white/20 dark:bg-black text-white overflow-hidden">
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold text-black dark:text-white">
-                Overview
-              </h1>
-              <div className="text-sm text-muted-foreground">
-                Aug 13, 2023 - Aug 18, 2023
-              </div>
-            </div>
-            <Button variant="outline" className="gap-2 w-full sm:w-auto">
-              Ethereum Network
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MetricsCard
-              title="Your Balance"
-              value="$74,892"
-              change={{
-                value: "$1,340",
-                percentage: "-2.1%",
-                isPositive: false,
-              }}
-            />
-            <MetricsCard
-              title="Your Deposits"
-              value="$54,892"
-              change={{
-                value: "$1,340",
-                percentage: "+13.2%",
-                isPositive: true,
-              }}
-            />
-            <MetricsCard
-              title="Accrued Yield"
-              value="$20,892"
-              change={{
-                value: "$1,340",
-                percentage: "+1.2%",
-                isPositive: true,
-              }}
-            />
-          </div>
-          <Card className="mt-6 p-6">
-            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold">General Statistics</h2>
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="ghost">
-                  Today
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Last week
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Last month
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Last 6 month
-                </Button>
-                <Button size="sm" variant="ghost">
-                  Year
-                </Button>
-              </div>
-            </div>
-            <StatsChart />
-          </Card>
-          <div className="mt-6">
-            <VaultTable />
-          </div>
-        </main>
+    <div className="w-full mx-auto py-6 sm:px-6 lg:px-8 text-black dark:text-white">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <DashboardStats />
+      </div>
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <WorkProgress />
+        <RecentInvoices />
+      </div>
+      <div className="mt-8">
+        <RecentBillOfLanding />
       </div>
     </div>
   );

@@ -65,7 +65,7 @@ export default function LoginPage() {
               </label>
               <Input
                 id="email"
-                defaultValue="David Brooks"
+                defaultValue="Shauritanga"
                 className="w-full p-2 border rounded"
                 onChange={(e) => setEmail(e.target.value)}
               />

@@ -31,51 +31,12 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
-import BillOfLadingModalForm from "./bill-of-landing-modal-form";
+import { ResponseBill } from "@/types";
+import { format, parseISO } from "date-fns";
 
-interface BillOfLading {
-  id: string;
-  billOfLadingNumber: string;
-  shipperName: string;
-  consigneeName: string;
-  dateOfIssue: Date;
-  portOfLoading: string;
-  portOfDischarge: string;
-}
-
-const data: BillOfLading[] = [
+const columns: ColumnDef<ResponseBill>[] = [
   {
-    id: "1",
-    billOfLadingNumber: "BOL001",
-    shipperName: "ABC Company",
-    consigneeName: "XYZ Corporation",
-    dateOfIssue: new Date("2023-01-15"),
-    portOfLoading: "Shanghai",
-    portOfDischarge: "Los Angeles",
-  },
-  {
-    id: "2",
-    billOfLadingNumber: "BOL002",
-    shipperName: "Global Exports Ltd",
-    consigneeName: "Import Masters Inc",
-    dateOfIssue: new Date("2023-02-20"),
-    portOfLoading: "Hamburg",
-    portOfDischarge: "New York",
-  },
-  {
-    id: "3",
-    billOfLadingNumber: "BOL003",
-    shipperName: "Eastern Traders",
-    consigneeName: "Western Distributors",
-    dateOfIssue: new Date("2023-03-10"),
-    portOfLoading: "Singapore",
-    portOfDischarge: "Rotterdam",
-  },
-];
-
-export const columns: ColumnDef<BillOfLading>[] = [
-  {
-    accessorKey: "billOfLadingNumber",
+    accessorKey: "billOfLandingNumber",
     header: ({ column }) => {
       return (
         <Button
@@ -87,17 +48,25 @@ export const columns: ColumnDef<BillOfLading>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const billOfLadingNumber = row.getValue("billOfLandingNumber");
+      return billOfLadingNumber;
+    },
   },
   {
-    accessorKey: "shipperName",
+    accessorKey: "shipping",
     header: "Shipper",
   },
   {
-    accessorKey: "consigneeName",
+    accessorKey: "vessleName",
+    header: "Vessle Name",
+  },
+  {
+    accessorKey: "consignee",
     header: "Consignee",
   },
   {
-    accessorKey: "dateOfIssue",
+    accessorKey: "dateIssued",
     header: ({ column }) => {
       return (
         <Button
@@ -110,8 +79,31 @@ export const columns: ColumnDef<BillOfLading>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = row.getValue("dateOfIssue") as Date;
-      return date.toLocaleDateString();
+      const date = row.getValue("dateIssued");
+      const parsedDate = parseISO(date as string);
+      const formatedDate = format(parsedDate, "dd-MM-yyyy");
+      return formatedDate;
+    },
+  },
+  {
+    accessorKey: "releasedDate",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Date of Release
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      console.log(row);
+      const date = row.getValue("releasedDate");
+      const parsedDate = parseISO(date as string);
+      const formatedDate = format(parsedDate, "dd-MM-yyyy");
+      return formatedDate;
     },
   },
   {
@@ -121,6 +113,10 @@ export const columns: ColumnDef<BillOfLading>[] = [
   {
     accessorKey: "portOfDischarge",
     header: "Port of Discharge",
+  },
+  {
+    accessorKey: "placeOfDelivery",
+    header: "Delivery Place",
   },
   {
     id: "actions",
@@ -135,21 +131,24 @@ export const columns: ColumnDef<BillOfLading>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            className="dark:bg-black dark:text-white"
+          >
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => console.log("View", billOfLading.id)}
+              onClick={() => console.log("View", billOfLading._id)}
             >
               View details
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => console.log("Edit", billOfLading.id)}
+              onClick={() => console.log("Edit", billOfLading._id)}
             >
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => console.log("Delete", billOfLading.id)}
+              onClick={() => console.log("Delete", billOfLading._id)}
             >
               Delete
             </DropdownMenuItem>
@@ -160,12 +159,18 @@ export const columns: ColumnDef<BillOfLading>[] = [
   },
 ];
 
-export default function BillOfLadingTable() {
+interface BillOfLadingTableProps {
+  initialData: ResponseBill[];
+}
+
+export default function BillOfLadingTable({
+  initialData,
+}: BillOfLadingTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
-    data,
+    data: initialData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
@@ -180,28 +185,27 @@ export default function BillOfLadingTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between">
-        <div className="flex items-center space-x-2">
+      <div className="flex justify-between text-black dark:text-white">
+        <div className="flex items-center space-x-1 border rounded px-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search bill number..."
             value={
               (table
-                .getColumn("billOfLadingNumber")
+                .getColumn("billOfLandingNumber")
                 ?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
               table
-                .getColumn("billOfLadingNumber")
+                .getColumn("billOfLandingNumber")
                 ?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="max-w-sm border-none"
           />
         </div>
-        {/* <BillOfLadingModalForm /> */}
       </div>
       <div className="rounded-md border">
-        <Table>
+        <Table className="text-black dark:text-white">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

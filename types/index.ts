@@ -1,5 +1,3 @@
-import { ZodError } from "zod";
-
 export type ActionResponse = {
   success: boolean;
   message: string;
@@ -15,4 +13,18 @@ export type BillOfLandingData = {
   consignee: string;
   insurance: string;
   shipping: string;
+  client: string;
+  vessleName: string;
+  placeOfDelivery: string;
+  releasedDate: string;
+};
+
+export type ResponseBill = {
+  _id: string;
+  billOfLadingNumber: string;
+  shipping: string;
+  consignee: string;
+  dateIssued: Date;
+  portOfLoading: string;
+  portOfDischarge: string;
 };
