@@ -3,23 +3,23 @@ import { Activity, Flame, Clock, TrendingUp } from "lucide-react";
 const stats = [
   {
     name: "Files Open",
-    value: 12,
+    value: 0,
     icon: Activity,
     color: "bg-blue-500",
   },
   {
     name: "Unpaid invoice(s)",
-    value: "3,500",
+    value: "0",
     icon: Flame,
     color: "bg-red-500",
   },
   {
     name: "Paid invoice(s)",
-    value: "7,200",
+    value: "0",
     icon: Clock,
     color: "bg-green-500",
   },
-  { name: "Expenses", value: "800", icon: TrendingUp, color: "bg-purple-500" },
+  { name: "Expenses", value: "0", icon: TrendingUp, color: "bg-purple-500" },
 ];
 
 export default function DashboardStats() {
