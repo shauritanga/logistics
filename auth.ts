@@ -1,10 +1,20 @@
-import NextAuth from "next-auth";
+import NextAuth, { User as NextAuthUser } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 
 import User from "./models/User";
 import dbConnect from "./lib/mongodb";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      role: string;
+    } & NextAuthUser;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(dbConnect),
@@ -18,7 +28,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         await dbConnect();
 
-        console.log(credentials?.email);
         const user = await User.findOne({
           email: credentials?.email,
         });
@@ -34,7 +43,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isPasswordValid) {
           throw new Error("Invalid password");
         }
-        return { id: user._id.toString(), email: user.email, name: user.name };
+        console.log({ user });
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        };
       },
     }),
   ],
@@ -47,6 +62,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        if ("role" in user) {
+          token.role = user.role;
+        }
       }
       return token;
     },
@@ -55,6 +73,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         ...session.user,
         id: token.id as string,
         email: token.email as string,
+        role: token.role as string,
       };
       return session;
     },

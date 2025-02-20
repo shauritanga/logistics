@@ -9,10 +9,12 @@ export type BillOfLandingData = {
   billOfLandingNumber: string;
   portOfLoading: string;
   portOfDischarge: string;
-  dateIssued: string;
+  dateArrived: string;
   consignee: string;
   insurance: string;
-  shipping: string;
+  shippingLine: string;
+  notifyParty: string;
+  shipper: string;
   client: string;
   vessleName: string;
   placeOfDelivery: string;
@@ -22,9 +24,18 @@ export type BillOfLandingData = {
 export type ResponseBill = {
   _id: string;
   billOfLadingNumber: string;
-  shipping: string;
+  shippingLine: string;
+  shipper: string;
   consignee: string;
-  dateIssued: Date;
+  dateArrived: Date;
+  notifyParty: string;
+  insurance: string;
+  client: string;
+  vessleName: string;
+  placeOfDelivery: string;
   portOfLoading: string;
   portOfDischarge: string;
+  createdAt: Date;
+  updatedAt: Date;
+  releasedDate: string;
 };

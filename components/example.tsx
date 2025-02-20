@@ -1,5 +1,3 @@
-"use client";
-
 import {
   BarChart2,
   Receipt,
@@ -19,6 +17,7 @@ import { Home } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
+import withPermission from "@/components/withPermission";
 
 export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -59,10 +58,10 @@ export default function Sidebar() {
       </button>
       <nav
         className={`
-                fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
-                lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23]
-                ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-            `}
+                  fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
+                  lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23]
+                  ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+              `}
       >
         <div className="h-full flex flex-col">
           <Link
@@ -85,9 +84,6 @@ export default function Sidebar() {
                 height={66}
                 className="flex-shrink-0 block dark:hidden"
               />
-              {/* <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white">
-                DJK International
-              </span> */}
             </div>
           </Link>
 
@@ -101,8 +97,8 @@ export default function Sidebar() {
                   <NavItem href="/" icon={Home}>
                     Dashboard
                   </NavItem>
-                  <NavItem href="/dashboard/clients" icon={BarChart2}>
-                    Clients
+                  <NavItem href="/dashboard/customers" icon={BarChart2}>
+                    Customers
                   </NavItem>
                   <NavItem href="/dashboard/documents" icon={Folder}>
                     Documents
@@ -117,7 +113,7 @@ export default function Sidebar() {
                   <NavItem href="/dashboard/open-files" icon={Wallet}>
                     Open Files
                   </NavItem>
-                  <NavItem href="/dashboard/manage-bil" icon={Receipt}>
+                  <NavItem href="/dashboard/manage-files" icon={Receipt}>
                     Manage Files
                   </NavItem>
                   <NavItem href="/dashboard/manage-cargo" icon={CreditCard}>

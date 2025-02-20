@@ -19,5 +19,5 @@ const invoiceSchema = new Schema<IInvoice>({
   invoiceAmount: { type: Number },
 });
 
-export default mongoose.models?.User ||
+export default mongoose.models?.Invoice ||
   mongoose.model<IInvoice>("Invoice", invoiceSchema);

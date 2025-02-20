@@ -2,7 +2,8 @@
 
 import dbConnect from "@/lib/mongodb";
 import BillOfLading from "@/models/File";
-import { ActionResponse, BillOfLandingData } from "@/types";
+import { ActionResponse, BillOfLandingData, ResponseBill } from "@/types";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const billOfLandingSchema = z.object({
@@ -11,15 +12,17 @@ const billOfLandingSchema = z.object({
   portOfDischarge: z.string().min(1, "Destination port is required"),
   insurance: z.string().min(1, "Insurance company is required"),
   consignee: z.string().min(1, "Consignee is required"),
-  dateIssued: z.string().min(1, "Issued date is required"),
+  notifyParty: z.string().min(1, "Notify party is required"),
+  dateArrived: z.string().min(1, "Issued date is required"),
   releasedDate: z.string().min(1, "Released date is required"),
-  shipping: z.string().min(1, "Shipping name is required"),
+  shipper: z.string().min(1, "Shipper name is required"),
+  shippingLine: z.string().min(1, "Shipping name is required"),
   client: z.string().min(1, "Client name is required"),
   placeOfDelivery: z.string().min(1, "Final destination is required"),
   vessleName: z.string().min(1, "Vessle name is required"),
 });
 
-export default async function submitBill(
+export async function submitBill(
   _: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> {
@@ -30,16 +33,16 @@ export default async function submitBill(
       consignee: formData.get("consignee") as string,
       portOfLoading: formData.get("portOfLoading") as string,
       portOfDischarge: formData.get("portOfDischarge") as string,
-      dateIssued: formData.get("dateIssued") as string,
+      dateArrived: formData.get("dateArrived") as string,
       insurance: formData.get("insurance") as string,
-      shipping: formData.get("shipping") as string,
+      shipper: formData.get("shipper") as string,
+      notifyParty: formData.get("notifyParty") as string,
+      shippingLine: formData.get("shippingLine") as string,
       client: formData.get("client") as string,
       placeOfDelivery: formData.get("placeOfDelivery") as string,
       vessleName: formData.get("vessleName") as string,
       releasedDate: formData.get("releasedDate") as string,
     };
-
-    console.log({ rawData });
 
     const validatedData = billOfLandingSchema.safeParse(rawData);
 
@@ -55,6 +58,7 @@ export default async function submitBill(
 
     const bill = new BillOfLading(validatedData.data);
     await bill.save();
+    revalidatePath("/dashboard/manage-bill-of-landing");
     return { success: true, message: "Bill of landing has been saved" };
   } catch (error: any) {
     return {
@@ -63,4 +67,20 @@ export default async function submitBill(
       inputs: {},
     };
   }
+}
+
+export async function getAllBilOfLanding(): Promise<ResponseBill[]> {
+  try {
+    await dbConnect();
+    const BilOfLandings = await BillOfLading.find().populate([
+      "client",
+      "shipper",
+      "consignee",
+      "notifyParty",
+    ]);
+
+    console.log({ BilOfLandings });
+    return JSON.parse(JSON.stringify(BilOfLandings, null, 2));
+  } catch (error) {}
+  return [];
 }

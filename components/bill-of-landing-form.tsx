@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import submitBill from "@/actions/create-bill";
+import { submitBill } from "@/actions/bil";
 import { ActionResponse } from "@/types";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -23,20 +23,32 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
-import { CalendarIcon, CircleCheck } from "lucide-react";
+import { CalendarIcon, CircleCheck, CircleX } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface Client {
+  _id: string;
+  name: string;
+  district: string;
+  region: string;
+  street: string;
+  country: string;
+  email: string;
+  phone: string;
+}
 
 const initialState: ActionResponse = {
   success: false,
   message: "",
 };
 
-export default function BillOfLandingForm() {
+export default function BillOfLandingForm({ clients }: { clients: Client[] }) {
   const [date, setDate] = React.useState<Date>();
   const [releaseDate, setReleaseDate] = React.useState<Date>();
   const [consignee, setConsignee] = React.useState("");
-  const [shipping, setShipping] = React.useState("");
+  const [shipper, setShipper] = React.useState("");
   const [client, setClient] = React.useState("");
+  const [notifyParty, setNotifyParty] = React.useState("");
   const [state, action, isPending] = useActionState(submitBill, initialState);
 
   const formData = new FormData();
@@ -66,7 +78,7 @@ export default function BillOfLandingForm() {
   const formattedReleasedDate = localReleasedDate
     ? format(localReleasedDate, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", {})
     : "";
-  formData.set("dateIssued", formattedDate);
+  formData.set("dateArrived", formattedDate);
   formData.set("releasedDate", formattedReleasedDate);
 
   return (
@@ -100,10 +112,10 @@ export default function BillOfLandingForm() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>Date Issued</Label>
+              <Label>Arrival Date</Label>
               <input
                 type="hidden"
-                name="dateIssued"
+                name="dateArrived"
                 value={date ? format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX") : ""}
               />
               {/* Shadcn DatePicker */}
@@ -113,7 +125,7 @@ export default function BillOfLandingForm() {
                     variant="outline"
                     className={cn(
                       "w-full justify-between",
-                      state?.errors?.dateIssued ? "border-red-500" : ""
+                      state?.errors?.dateArrived ? "border-red-500" : ""
                     )}
                   >
                     {date ? format(date, "PPP") : "Pick a date"}
@@ -124,39 +136,52 @@ export default function BillOfLandingForm() {
                   <Calendar mode="single" selected={date} onSelect={setDate} />
                 </PopoverContent>
               </Popover>
-              {state.errors?.dateIssued && (
-                <p id="dateIssued-error" className="text-sm text-red-500">
-                  {state.errors?.dateIssued[0]}
+              {state.errors?.dateArrived && (
+                <p id="dateArrived-error" className="text-sm text-red-500">
+                  {state.errors.dateArrived[0]}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Shipper</Label>
+              <input type="hidden" name="shipper" value={shipper} />
+              <Select
+                name="shipper"
+                defaultValue={state?.inputs?.shipper}
+                onValueChange={(value) => setShipper(value)}
+              >
+                <SelectTrigger
+                  className={cn(
+                    "w-full",
+                    state?.errors?.shipper ? "border-red-500" : ""
+                  )}
+                >
+                  <SelectValue placeholder="Select shipper" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-400">
+                  {clients.map((client) => (
+                    <SelectItem key={client._id} value={client._id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {state.errors?.shipper && (
+                <p id="shipper-error" className="text-sm text-red-500">
+                  {state.errors?.shipper[0]}
                 </p>
               )}
             </div>
             <div className="space-y-2">
               <Label>Shipping line</Label>
-              <input type="hidden" name="shipping" value={shipping} />
-              <Select
-                name="shipping"
-                defaultValue={state?.inputs?.shipping}
-                onValueChange={(value) => setShipping(value)}
-              >
-                <SelectTrigger
-                  className={cn(
-                    "w-full",
-                    state?.errors?.shipping ? "border-red-500" : ""
-                  )}
-                >
-                  <SelectValue placeholder="Select a fruit" />
-                </SelectTrigger>
-                <SelectContent className="bg-gray-400">
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
-                </SelectContent>
-              </Select>
-              {state.errors?.shipping && (
-                <p id="shipping-error" className="text-sm text-red-500">
-                  {state.errors?.shipping[0]}
+              <Input
+                name="shippingLine"
+                defaultValue={state?.inputs?.shippingLine}
+                className={state?.errors?.shippingLine ? "border-red-500" : ""}
+              />
+              {state.errors?.shippingLine && (
+                <p id="shippingLine-error" className="text-sm text-red-500">
+                  {state.errors.shippingLine[0]}
                 </p>
               )}
             </div>
@@ -230,7 +255,7 @@ export default function BillOfLandingForm() {
                       variant="outline"
                       className={cn(
                         "w-full justify-between",
-                        state?.errors?.dateIssued ? "border-red-500" : ""
+                        state?.errors?.releasedDate ? "border-red-500" : ""
                       )}
                     >
                       {releaseDate ? format(releaseDate, "PPP") : "Pick a date"}
@@ -266,14 +291,14 @@ export default function BillOfLandingForm() {
                     state?.errors?.client ? "border-red-500" : ""
                   )}
                 >
-                  <SelectValue placeholder="Select a client" />
+                  <SelectValue placeholder="Select client" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-400">
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  {clients.map((client) => (
+                    <SelectItem key={client._id} value={client._id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {state.errors?.client && (
@@ -296,14 +321,14 @@ export default function BillOfLandingForm() {
                     state?.errors?.consignee ? "border-red-500" : ""
                   )}
                 >
-                  <SelectValue placeholder="Select a fruit" />
+                  <SelectValue placeholder="Select consignee" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-400">
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
-                  <SelectItem value="blueberry">Blueberry</SelectItem>
-                  <SelectItem value="grapes">Grapes</SelectItem>
-                  <SelectItem value="pineapple">Pineapple</SelectItem>
+                  {clients.map((client) => (
+                    <SelectItem key={client._id} value={client._id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {state.errors?.consignee && (
@@ -325,17 +350,47 @@ export default function BillOfLandingForm() {
                 </p>
               )}
             </div>
+            <div className="space-y-2">
+              <Label>Notify</Label>
+              <input type="hidden" name="notifyParty" value={notifyParty} />
+              <Select
+                name="notifyParty"
+                defaultValue={state?.inputs?.notifyParty}
+                onValueChange={(value) => setNotifyParty(value)}
+              >
+                <SelectTrigger
+                  className={cn(
+                    "w-full",
+                    state?.errors?.consignee ? "border-red-500" : ""
+                  )}
+                >
+                  <SelectValue placeholder="Select notifier" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-400">
+                  {clients.map((client) => (
+                    <SelectItem key={client._id} value={client._id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {state.errors?.notifyParty && (
+                <p id="notifyParty-error" className="text-sm text-red-500">
+                  {state.errors?.notifyParty[0]}
+                </p>
+              )}
+            </div>
           </div>
           {state?.success ? (
-            <div className="flex flex-col mt-6">
-              <span className="flex gap-2">
-                <CircleCheck className="text-green-500" />
-                Success
-              </span>
+            <div className="flex flex-col mt-6 bg-green-100 p-2 text-green-500 rounded">
               <p className="text-muted italic">{state.message}</p>
             </div>
           ) : (
-            ""
+            state.message && (
+              <div className="flex flex-col mt-6 bg-red-100 p-2 text-red-500 rounded">
+                <p className="text-muted italic">{state.message}</p>
+              </div>
+            )
           )}
           <Button className="bg-[#f38633] rounded mt-12">
             {isPending ? "Submiting..." : "Submit"}

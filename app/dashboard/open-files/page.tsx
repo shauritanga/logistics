@@ -1,3 +1,4 @@
+import { readClients } from "@/actions/Client";
 import BillOfLandingForm from "@/components/bill-of-landing-form";
 
 import { z } from "zod";
@@ -25,6 +26,7 @@ const formSchema = z.object({
   hazardousGoods: z.boolean(),
 });
 
-export default function Page() {
-  return <BillOfLandingForm />;
+export default async function Page() {
+  const clients = await readClients();
+  return <BillOfLandingForm clients={clients} />;
 }

@@ -54,7 +54,7 @@ const columns: ColumnDef<ResponseBill>[] = [
     },
   },
   {
-    accessorKey: "shipping",
+    accessorKey: "shipper.name",
     header: "Shipper",
   },
   {
@@ -62,11 +62,11 @@ const columns: ColumnDef<ResponseBill>[] = [
     header: "Vessle Name",
   },
   {
-    accessorKey: "consignee",
+    accessorKey: "consignee.name",
     header: "Consignee",
   },
   {
-    accessorKey: "dateIssued",
+    accessorKey: "dateArrived",
     header: ({ column }) => {
       return (
         <Button
@@ -79,7 +79,7 @@ const columns: ColumnDef<ResponseBill>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = row.getValue("dateIssued");
+      const date = row.getValue("dateArrived");
       const parsedDate = parseISO(date as string);
       const formatedDate = format(parsedDate, "dd-MM-yyyy");
       return formatedDate;

@@ -1,11 +1,24 @@
 import { MetricsCard } from "@/components/metrics-card";
-import getAllBilOfLanding from "@/actions/get-all-bil-of-landing";
 import BillOfLadingTable from "@/components/bill-of-landing-table";
+import { getAllBilOfLanding } from "@/actions/bil";
+import { parseISO, isToday, isThisWeek, isThisMonth } from "date-fns";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const bilOfLandings = await getAllBilOfLanding();
+
+  const todayCount = bilOfLandings.filter((bill) =>
+    isToday(bill.createdAt)
+  ).length;
+
+  const thisWeekCount = bilOfLandings.filter((bill) =>
+    isThisWeek(bill.createdAt)
+  ).length;
+
+  const thisMonthCount = bilOfLandings.filter((bill) =>
+    isThisMonth(bill.createdAt)
+  ).length;
 
   return (
     <div className="flex h-screen bg-white/20 dark:bg-black text-white overflow-hidden">
@@ -21,28 +34,28 @@ export default async function Page() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <MetricsCard
               title="Today"
-              value="7"
+              value={todayCount.toString()}
               change={{
-                value: "$1,340",
-                percentage: "-2.1%",
+                value: "",
+                percentage: "",
                 isPositive: false,
               }}
             />
             <MetricsCard
               title="This week"
-              value="54"
+              value={thisWeekCount.toString()}
               change={{
-                value: "$1,340",
-                percentage: "+13.2%",
+                value: "",
+                percentage: "",
                 isPositive: true,
               }}
             />
             <MetricsCard
               title="This Month"
-              value="206"
+              value={thisMonthCount.toString()}
               change={{
-                value: "$1,340",
-                percentage: "+1.2%",
+                value: "",
+                percentage: "",
                 isPositive: true,
               }}
             />
