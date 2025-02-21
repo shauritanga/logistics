@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Client } from "./ClientTable";
-import { ActionResponse } from "@/types";
 import { updateClient } from "@/actions/Client";
 
 interface EditClientModalProps {
@@ -42,7 +41,6 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
     });
     try {
       const result = await updateClient(client._id, formDataToSubmit);
-      console.log("Updated client:", formData);
       setState(result);
     } catch (error: any) {
       setState({ success: false, message: error.message });

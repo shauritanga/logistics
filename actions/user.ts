@@ -71,20 +71,31 @@ export async function readEmployee(id: number) {
   return employee;
 }
 
-export async function updateEmployee(id: number, data: any) {
-  await dbConnect();
-  const session = await auth();
-  const user = session?.user;
+export async function updateEmployee(id: string, formData: FormData) {
+  try {
+    await dbConnect();
+    const session = await auth();
+    const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "update");
+    await checkPermission(user?.role ?? "USER", "users", "update");
 
-  // Update employee in database
-  const employee = await User.findByIdAndUpdate(id, data, { new: true });
-  if (!employee) throw new Error("Employee not found");
-  return employee;
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      position: formData.get("position") as string,
+      role: formData.get("role"),
+    };
+    // Update employee in database
+    const employee = await User.findByIdAndUpdate(id, data, { new: true });
+    if (!employee) throw new Error("Employee not found");
+    revalidatePath("/dashboard/employees");
+    return employee;
+  } catch (error) {
+    return [];
+  }
 }
 
-export async function deleteEmployee(id: number) {
+export async function deleteEmployee(id: string) {
   await dbConnect();
   const session = await auth();
   const user = session?.user;
@@ -94,5 +105,6 @@ export async function deleteEmployee(id: number) {
   // Delete employee from database
   const result = await User.findByIdAndDelete(id);
   if (!result) throw new Error("Employee not found");
+  revalidatePath("/dashboard/employee");
   return { message: "Employee deleted successfully" };
 }

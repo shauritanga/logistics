@@ -55,7 +55,7 @@ export default function EmployeeModal() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogTrigger asChild>
           <Button className="bg-[#f38633] hover:bg-[#d4915e] text-white rounded">
-            Create New Employee
+            New Employee
           </Button>
         </DialogTrigger>
 
