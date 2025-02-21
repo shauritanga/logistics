@@ -12,6 +12,8 @@ import Link from "next/link";
 
 import Profile01 from "./profile-01";
 import { ThemeToggle } from "./toggle-theme";
+import { useEffect, useState } from "react";
+import { getPendingTransactionsCount } from "@/actions/transactions";
 
 interface BreadcrumbItem {
   label: string;
@@ -19,6 +21,17 @@ interface BreadcrumbItem {
 }
 
 export default function TopNav() {
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      const count = await getPendingTransactionsCount();
+      setPendingCount(count);
+    };
+
+    fetchPendingCount();
+  }, []);
+
   const breadcrumbs: BreadcrumbItem[] = [
     { label: "Dashboard", href: "/dashboard" },
   ];
@@ -50,9 +63,14 @@ export default function TopNav() {
       <div className="flex items-center gap-2 sm:gap-4 ml-auto sm:ml-0">
         <button
           type="button"
-          className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-full transition-colors"
+          className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-full transition-colors relative"
         >
           <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-300" />
+          {pendingCount > 0 && (
+            <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full transform translate-x-1/2 -translate-y-1/2 h-3 w-3">
+              {pendingCount}
+            </span>
+          )}
         </button>
 
         <ThemeToggle />

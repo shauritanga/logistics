@@ -21,12 +21,10 @@ type PermissionActions = {
 };
 
 type Permissions = {
-  employees: PermissionActions;
+  bils: PermissionActions;
   users: PermissionActions;
   transactions: PermissionActions;
-  expenses: PermissionActions;
   invoices: PermissionActions;
-  payments: PermissionActions;
   roles: PermissionActions;
 };
 
@@ -35,13 +33,11 @@ export default function RoleForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [permissions, setPermissions] = useState<Permissions>({
-    employees: { create: true, read: true, update: true, delete: false },
+    bils: { create: true, read: true, update: true, delete: false },
     users: { create: true, read: true, update: true, delete: false },
     transactions: { create: true, read: true, update: true, delete: false },
     roles: { create: true, read: true, update: true, delete: false },
-    expenses: { create: true, read: true, update: true, delete: false },
     invoices: { create: true, read: true, update: true, delete: false },
-    payments: { create: true, read: true, update: true, delete: false },
   });
 
   const handleCheckboxChange = (

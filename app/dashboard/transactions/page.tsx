@@ -1,7 +1,14 @@
-export default function Transactions() {
+import { readTransactions } from "@/actions/transactions";
+import TransactionTable from "./components/TransactionTable";
+
+const TransactionsTable = async () => {
+  const transactions = await readTransactions();
+
   return (
-    <div>
-      <h1>Transactions</h1>
+    <div className="overflow-x-auto">
+      <TransactionTable transactions={transactions} />
     </div>
   );
-}
+};
+
+export default TransactionsTable;

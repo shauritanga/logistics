@@ -8,12 +8,10 @@ const permissionSchema = new Schema({
 const roleSchema = new Schema({
   name: { type: String },
   permissions: {
-    employees: permissionSchema,
+    bils: permissionSchema,
     users: permissionSchema,
     transactions: permissionSchema,
-    expenses: permissionSchema,
     invoices: permissionSchema,
-    payments: permissionSchema,
     roles: permissionSchema,
   },
 });

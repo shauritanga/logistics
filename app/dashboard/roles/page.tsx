@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/table";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
+export const dynamic = "force-dynamic";
+
 export default async function Role() {
   const roles = await getRoles();
 
@@ -35,7 +37,7 @@ export default async function Role() {
           <TableBody>
             {roles.map((role) => {
               const resources = Object.keys(role.permissions);
-              console.log(role.permissions[resources[0]].create);
+              console.log({ resources });
               return resources.map((resource, index) => (
                 <TableRow key={`${role.name}-${resource}`}>
                   {index === 0 && (

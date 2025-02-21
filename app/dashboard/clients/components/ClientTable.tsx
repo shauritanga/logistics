@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface Client {
+export interface Client {
   _id: string;
   name: string;
   district: string;

@@ -16,7 +16,9 @@ export default function EmployeeModal() {
     <div>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-[#f38633]">Create New Employee</Button>
+          <Button className="bg-[#f38633] hover:bg-[#d4915e] text-white rounded">
+            Create New Employee
+          </Button>
         </DialogTrigger>
 
         <DialogContent className="p-4 bg-white dark:bg-black rounded-lg">

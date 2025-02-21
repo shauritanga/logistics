@@ -3,7 +3,6 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { createEmployee } from "@/actions/user";
 import { ActionResponse } from "@/types";
-import { CircleCheck, CircleX } from "lucide-react";
 
 const initialState: ActionResponse = {
   success: false,
