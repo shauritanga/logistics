@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import getRoles from "@/actions/getRoles";
 import { Button } from "@/components/ui/button";
 import { Employee } from "./EmployeeTable";
+import { enqueueSnackbar } from "notistack";
 
 const initialState: ActionResponse = {
   success: false,
@@ -65,7 +66,11 @@ export default function EditEmployeeModal({
     try {
       const result = await updateEmployee(employee._id, formDataToSubmit);
       setState(result);
+      enqueueSnackbar("An employee has been updated successfuly", {
+        variant: "success",
+      });
     } catch (error: any) {
+      enqueueSnackbar("Employee update failed", { variant: "error" });
       setState({ success: false, message: error.message });
     } finally {
       onClose();

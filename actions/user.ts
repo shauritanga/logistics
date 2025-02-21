@@ -7,6 +7,7 @@ import dbConnect from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 import { ActionResponse } from "@/types";
 import { revalidatePath } from "next/cache";
+import { enqueueSnackbar } from "notistack";
 
 export async function createEmployee(
   _: ActionResponse | null,
@@ -89,7 +90,7 @@ export async function updateEmployee(id: string, formData: FormData) {
     const employee = await User.findByIdAndUpdate(id, data, { new: true });
     if (!employee) throw new Error("Employee not found");
     revalidatePath("/dashboard/employees");
-    return employee;
+    return JSON.parse(JSON.stringify(employee));
   } catch (error) {
     return [];
   }

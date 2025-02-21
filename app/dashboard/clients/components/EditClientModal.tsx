@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Client } from "./ClientTable";
 import { updateClient } from "@/actions/Client";
+import { enqueueSnackbar } from "notistack";
 
 interface EditClientModalProps {
   isOpen: boolean;
@@ -23,7 +24,6 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
   client,
 }) => {
   const [formData, setFormData] = useState<Client>(client);
-  const [state, setState] = useState({ success: false, message: "" });
 
   useEffect(() => {
     setFormData(client);
@@ -41,9 +41,11 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
     });
     try {
       const result = await updateClient(client._id, formDataToSubmit);
-      setState(result);
+      enqueueSnackbar("You have successfully updated a client", {
+        variant: "success",
+      });
     } catch (error: any) {
-      setState({ success: false, message: error.message });
+      enqueueSnackbar("Client update failed", { variant: "error" });
     } finally {
       onClose();
     }
@@ -167,17 +169,6 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
               />
             </div>
           </div>
-          {state?.success ? (
-            <div className="flex flex-col mt-6 bg-green-100 p-2 text-green-500 rounded">
-              <p className="text-muted italic">{state.message}</p>
-            </div>
-          ) : (
-            state?.message && (
-              <div className="flex flex-col mt-6 bg-red-100 p-2 text-red-500 rounded">
-                <p className="text-muted italic">{state.message}</p>
-              </div>
-            )
-          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel

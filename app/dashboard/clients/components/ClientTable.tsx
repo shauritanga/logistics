@@ -18,6 +18,7 @@ import {
 import { FaEdit, FaTrash } from "react-icons/fa";
 import EditClientModal from "./EditClientModal";
 import { deleteClient } from "@/actions/Client";
+import { enqueueSnackbar } from "notistack";
 
 export interface Client {
   _id: string;
@@ -41,6 +42,7 @@ const ClientsTable = ({ clients }: { clients: Client[] }) => {
 
   const handleDelete = async (clientId: string) => {
     await deleteClient(clientId);
+    enqueueSnackbar("Client delected successfully", { variant: "success" });
   };
 
   return (
