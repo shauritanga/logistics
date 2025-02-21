@@ -129,6 +129,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                 required
+                disabled
               >
                 <option value="payments">Payments</option>
                 <option value="expenses">Expenses</option>
