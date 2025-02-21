@@ -6,5 +6,5 @@ import Role from "@/models/Role";
 export default async function getRoles() {
   await dbConnect();
   const roles = await Role.find({});
-  return roles;
+  return JSON.parse(JSON.stringify(roles));
 }

@@ -72,7 +72,7 @@ export default function RoleForm() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-[#f38633] hover:bg-[#d4915e] text-white rounded-md">
-          Create New Employee
+          Create New Role
         </Button>
       </DialogTrigger>
 

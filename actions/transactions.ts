@@ -80,10 +80,10 @@ export async function readTransactionsByCategory(category: string) {
   await checkPermission(user?.role ?? "USER", "users", "read");
 
   // Fetch employee from database
-  const employees = await Transaction.find({ category: category }).populate(
+  const transactions = await Transaction.find({ category: category }).populate(
     "client"
   );
-  return JSON.parse(JSON.stringify(employees));
+  return JSON.parse(JSON.stringify(transactions));
 }
 
 export async function readTransaction(id: number) {

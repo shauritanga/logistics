@@ -15,8 +15,6 @@ export const dynamic = "force-dynamic";
 export default async function Role() {
   const roles = await getRoles();
 
-  console.log({ roles });
-
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-end mb-12">
@@ -35,10 +33,10 @@ export default async function Role() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {roles.map((role) => {
-              const resources = Object.keys(role.permissions);
+            {roles.map((role: any) => {
+              const resources: string[] = Object.keys(role.permissions);
               console.log({ resources });
-              return resources.map((resource, index) => (
+              return resources.map((resource: string, index: number) => (
                 <TableRow key={`${role.name}-${resource}`}>
                   {index === 0 && (
                     <TableCell
