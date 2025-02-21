@@ -1,55 +1,64 @@
-"use client";
-import { createClient } from "@/actions/Client";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useActionState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Client } from "./ClientTable";
 import { ActionResponse } from "@/types";
-import { useActionState, useState } from "react";
+import { updateClient } from "@/actions/Client";
 
-export default function AddClientForm() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    district: "",
-    region: "",
-    street: "",
-    country: "",
-    email: "",
-    phone: "",
-  });
+interface EditClientModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  client: Client;
+}
 
-  const initialState: ActionResponse = {
-    success: false,
-    message: "",
-  };
+const EditClientModal: React.FC<EditClientModalProps> = ({
+  isOpen,
+  onClose,
+  client,
+}) => {
+  const [formData, setFormData] = useState<Client>(client);
+  const [state, setState] = useState({ success: false, message: "" });
 
-  const [state, action, isPending] = useActionState(createClient, initialState);
+  useEffect(() => {
+    setFormData(client);
+  }, [client]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  return (
-    <div>
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogTrigger asChild>
-          <Button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-[#f38633] hover:bg-[#d4915e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f38633]">
-            Add Client
-          </Button>
-        </DialogTrigger>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formDataToSubmit = new FormData();
+    Object.keys(formData).forEach((key) => {
+      formDataToSubmit.append(key, formData[key as keyof Client] as string);
+    });
+    try {
+      const result = await updateClient(client._id, formDataToSubmit);
+      console.log("Updated client:", formData);
+      setState(result);
+    } catch (error: any) {
+      setState({ success: false, message: error.message });
+    } finally {
+      onClose();
+    }
+  };
 
-        <DialogContent className="p-4 bg-white dark:bg-black rounded-lg">
-          <DialogHeader>
-            <DialogTitle></DialogTitle>
-          </DialogHeader>
-          <form action={action} className="space-y-4">
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-white">
+        <DialogHeader>
+          <DialogTitle>Edit Client</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-4 mb-5">
             <div>
               <label
                 htmlFor="name"
@@ -63,7 +72,6 @@ export default function AddClientForm() {
                 id="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded shadow-sm"
                 required
               />
             </div>
@@ -80,112 +88,113 @@ export default function AddClientForm() {
                 id="district"
                 value={formData.district}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded shadow-sm"
                 required
               />
             </div>
             <div>
-              <Label
+              <label
                 htmlFor="region"
                 className="block text-sm font-medium text-gray-700"
               >
                 Region
-              </Label>
+              </label>
               <Input
                 type="text"
                 name="region"
                 id="region"
                 value={formData.region}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded shadow-sm"
                 required
               />
             </div>
             <div>
-              <Label
+              <label
                 htmlFor="street"
                 className="block text-sm font-medium text-gray-700"
               >
                 Street
-              </Label>
+              </label>
               <Input
                 type="text"
                 name="street"
                 id="street"
                 value={formData.street}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded shadow-sm"
               />
             </div>
             <div>
-              <Label
+              <label
                 htmlFor="country"
                 className="block text-sm font-medium text-gray-700"
               >
                 Country
-              </Label>
+              </label>
               <Input
                 type="text"
                 name="country"
                 id="country"
                 value={formData.country}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded shadow-sm"
               />
             </div>
             <div>
-              <Label
+              <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
                 Email
-              </Label>
+              </label>
               <Input
                 type="email"
                 name="email"
                 id="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded shadow-sm"
                 required
               />
             </div>
             <div>
-              <Label
+              <label
                 htmlFor="phone"
-                className="text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700"
               >
                 Phone
-              </Label>
+              </label>
               <Input
                 type="text"
                 name="phone"
                 id="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="mt-1  p-2 w-full border border-gray-300 rounded shadow-sm"
               />
             </div>
-            {state?.success ? (
-              <div className="flex flex-col mt-6 bg-green-100 p-2 text-green-500 rounded">
+          </div>
+          {state?.success ? (
+            <div className="flex flex-col mt-6 bg-green-100 p-2 text-green-500 rounded">
+              <p className="text-muted italic">{state.message}</p>
+            </div>
+          ) : (
+            state?.message && (
+              <div className="flex flex-col mt-6 bg-red-100 p-2 text-red-500 rounded">
                 <p className="text-muted italic">{state.message}</p>
               </div>
-            ) : (
-              state?.message && (
-                <div className="flex flex-col mt-6 bg-red-100 p-2 text-red-500 rounded">
-                  <p className="text-muted italic">{state.message}</p>
-                </div>
-              )
-            )}
+            )
+          )}
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button
               type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-[#f38633] hover:bg-[#d4915e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f38633]"
+              className="bg-[#f38633] hover:bg-[#d4915e] text-white"
             >
-              {isPending ? "Adding..." : "Add Client"}
+              Save Changes
             </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
-}
+};
+
+export default EditClientModal;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,6 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import EditClientModal from "./EditClientModal";
+import { deleteClient } from "@/actions/Client";
 
 export interface Client {
   _id: string;
@@ -21,6 +31,18 @@ export interface Client {
 }
 
 const ClientsTable = ({ clients }: { clients: Client[] }) => {
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleEdit = (client: Client) => {
+    setSelectedClient(client);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async (clientId: string) => {
+    await deleteClient(clientId);
+  };
+
   return (
     <div className="overflow-x-auto">
       <Table className="min-w-full bg-white dark:bg-gray-800">
@@ -33,6 +55,7 @@ const ClientsTable = ({ clients }: { clients: Client[] }) => {
             <TableHead className="py-2 px-4 border-b">Country</TableHead>
             <TableHead className="py-2 px-4 border-b">Email</TableHead>
             <TableHead className="py-2 px-4 border-b">Phone</TableHead>
+            <TableHead className="py-2 px-4 border-b">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -59,10 +82,41 @@ const ClientsTable = ({ clients }: { clients: Client[] }) => {
               <TableCell className="py-2 px-4 border-b">
                 {client.phone}
               </TableCell>
+              <TableCell className="py-2 px-4 border-b">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <FaEdit className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => handleEdit(client)}>
+                      <FaEdit className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={() => handleDelete(client._id)}
+                      className="text-red-500"
+                    >
+                      <FaTrash className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {selectedClient && (
+        <EditClientModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          client={selectedClient}
+        />
+      )}
     </div>
   );
 };

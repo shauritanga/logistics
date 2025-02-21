@@ -75,28 +75,52 @@ export async function readClient(id: number) {
   return employee;
 }
 
-export async function updateClient(id: number, data: any) {
-  await dbConnect();
-  const session = await auth();
-  const user = session?.user;
+export async function updateClient(
+  id: string,
+  formData: FormData
+): Promise<ActionResponse> {
+  try {
+    await dbConnect();
+    const session = await auth();
+    const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "update");
+    await checkPermission(user?.role ?? "USER", "users", "update");
+    const data = {
+      name: formData.get("name") as string,
+      district: formData.get("district") as string,
+      region: formData.get("region") as string,
+      street: formData.get("street") as string,
+      country: formData.get("country") as string,
+      email: formData.get("email") as string,
+      phone: formData.get("phone") as string,
+    };
 
-  // Update employee in database
-  const employee = await User.findByIdAndUpdate(id, data, { new: true });
-  if (!employee) throw new Error("Employee not found");
-  return employee;
+    // Update employee in database
+    const client = await Client.findByIdAndUpdate(id, data, { new: true });
+    if (!client) throw new Error("Employee not found");
+    revalidatePath("/dashboard/clients");
+    return { success: true, message: "Client has benn updated successfully" };
+  } catch (error) {
+    console.log({ error });
+    return { success: false, message: "Client update failed" };
+  }
 }
 
-export async function deleteClient(id: number) {
-  await dbConnect();
-  const session = await auth();
-  const user = session?.user;
+export async function deleteClient(id: string) {
+  try {
+    await dbConnect();
+    const session = await auth();
+    const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "delete");
+    await checkPermission(user?.role ?? "USER", "users", "delete");
 
-  // Delete employee from database
-  const result = await User.findByIdAndDelete(id);
-  if (!result) throw new Error("Employee not found");
-  return { message: "Employee deleted successfully" };
+    // Delete employee from database
+    const result = await Client.findByIdAndDelete(id);
+    if (!result) throw new Error("Client not found");
+    revalidatePath("/dashboard/clients");
+    return { message: "Client deleted successfully" };
+  } catch (error) {
+    console.log(error);
+    return { message: "Client deletion failed" };
+  }
 }
