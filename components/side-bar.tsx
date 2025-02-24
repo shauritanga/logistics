@@ -137,14 +137,21 @@ export default function Sidebar() {
                   <NavItem href="/dashboard/transactions" icon={Wallet}>
                     Transactions
                   </NavItem>
-                  <NavItem href="/dashboard/invoices" icon={Receipt}>
-                    Invoices
-                  </NavItem>
+
                   <NavItem href="/dashboard/payments" icon={CreditCard}>
                     Payments
                   </NavItem>
                   <NavItem href="/dashboard/expenses" icon={CreditCard}>
                     Expenses
+                  </NavItem>
+                  <NavItem href="/dashboard/quotations" icon={Receipt}>
+                    Quotation
+                  </NavItem>
+                  <NavItem href="/dashboard/proforma-invoices" icon={Receipt}>
+                    Proforma Invoices
+                  </NavItem>
+                  <NavItem href="/dashboard/invoices" icon={Receipt}>
+                    Invoices
                   </NavItem>
                 </div>
               </div>

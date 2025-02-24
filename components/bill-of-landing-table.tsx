@@ -36,7 +36,7 @@ import { format, parseISO } from "date-fns";
 
 const columns: ColumnDef<ResponseBill>[] = [
   {
-    accessorKey: "billOfLandingNumber",
+    accessorKey: "bolNumber",
     header: ({ column }) => {
       return (
         <Button
@@ -49,7 +49,7 @@ const columns: ColumnDef<ResponseBill>[] = [
       );
     },
     cell: ({ row }) => {
-      const billOfLadingNumber = row.getValue("billOfLandingNumber");
+      const billOfLadingNumber = row.getValue("bolNumber");
       return billOfLadingNumber;
     },
   },
@@ -66,7 +66,7 @@ const columns: ColumnDef<ResponseBill>[] = [
     header: "Consignee",
   },
   {
-    accessorKey: "dateArrived",
+    accessorKey: "arrivalDate",
     header: ({ column }) => {
       return (
         <Button
@@ -79,7 +79,7 @@ const columns: ColumnDef<ResponseBill>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = row.getValue("dateArrived");
+      const date = row.getValue("arrivalDate");
       const parsedDate = parseISO(date as string);
       const formatedDate = format(parsedDate, "dd-MM-yyyy");
       return formatedDate;
@@ -101,7 +101,7 @@ const columns: ColumnDef<ResponseBill>[] = [
     cell: ({ row }) => {
       console.log(row);
       const date = row.getValue("releasedDate");
-      const parsedDate = parseISO(date as string);
+      const parsedDate = date as Date;
       const formatedDate = format(parsedDate, "dd-MM-yyyy");
       return formatedDate;
     },
@@ -115,7 +115,7 @@ const columns: ColumnDef<ResponseBill>[] = [
     header: "Port of Discharge",
   },
   {
-    accessorKey: "placeOfDelivery",
+    accessorKey: "deliveryPlace",
     header: "Delivery Place",
   },
   {
@@ -191,14 +191,10 @@ export default function BillOfLadingTable({
           <Input
             placeholder="Search bill number..."
             value={
-              (table
-                .getColumn("billOfLandingNumber")
-                ?.getFilterValue() as string) ?? ""
+              (table.getColumn("bolNumber")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table
-                .getColumn("billOfLandingNumber")
-                ?.setFilterValue(event.target.value)
+              table.getColumn("bolNumber")?.setFilterValue(event.target.value)
             }
             className="max-w-sm border-none"
           />

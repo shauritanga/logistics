@@ -1,9 +1,9 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
+import { uploadToCloudinary } from "@/lib/uploadFile";
 import BillOfLading from "@/models/File";
-import { ActionResponse, BillOfLandingData, ResponseBill } from "@/types";
-import { revalidatePath } from "next/cache";
+import { ResponseBill } from "@/types";
 import { z } from "zod";
 
 const billOfLandingSchema = z.object({
@@ -22,50 +22,120 @@ const billOfLandingSchema = z.object({
   vessleName: z.string().min(1, "Vessle name is required"),
 });
 
-export async function submitBill(
-  _: ActionResponse | null,
-  formData: FormData
-): Promise<ActionResponse> {
-  await dbConnect();
+// Simulated server action (replace with your actual server action)
+export async function createBillOfLading(
+  _: { success?: boolean; error?: string } | null,
+  formData: any
+): Promise<{ success?: boolean; error?: string }> {
   try {
-    const rawData: BillOfLandingData = {
-      billOfLandingNumber: formData.get("billOfLandingNumber") as string,
-      consignee: formData.get("consignee") as string,
-      portOfLoading: formData.get("portOfLoading") as string,
-      portOfDischarge: formData.get("portOfDischarge") as string,
-      dateArrived: formData.get("dateArrived") as string,
-      insurance: formData.get("insurance") as string,
-      shipper: formData.get("shipper") as string,
-      notifyParty: formData.get("notifyParty") as string,
-      shippingLine: formData.get("shippingLine") as string,
-      client: formData.get("client") as string,
-      placeOfDelivery: formData.get("placeOfDelivery") as string,
-      vessleName: formData.get("vessleName") as string,
-      releasedDate: formData.get("releasedDate") as string,
+    await dbConnect();
+
+    const {
+      bolNumber,
+      shipper,
+      consignee,
+      notifyParty,
+      client,
+      countryLastConsignment,
+      tradingCountry,
+      entryOffice,
+      countryOfExeport,
+      shippingLine,
+      shippingOrder,
+      term,
+      goods,
+      containers,
+      deliveryPlace,
+      portOfLoading,
+      portOfDischarge,
+      arrivalDate,
+      vessleName,
+      releasedDate,
+      freightCharges,
+      tansad,
+      insurance,
+      packingList,
+      portInvoice,
+    } = formData;
+
+    const packingListFileRef = await uploadToCloudinary(
+      packingList.file,
+      bolNumber,
+      "packingList"
+    );
+    const portInvoiceFileRef = await uploadToCloudinary(
+      portInvoice.file,
+      bolNumber,
+      "portInvoice"
+    );
+
+    const bolData = {
+      bolNumber,
+      countryLastConsigment: countryLastConsignment,
+      countryOfExeport,
+      entryOffice,
+      containers: containers.map((container: any) => ({
+        containerNumber: container.containerNumber,
+        tareWeight: Number(container.tareWeight),
+        grossWeight: Number(container.grossWeight),
+      })),
+      goods: goods.map((good: any) => ({
+        description: good.description,
+        quantity: Number(good.quantity),
+        weight: Number(good.weight),
+        value: Number(good.value),
+        containerReference: good.containerReference,
+      })),
+      freightCharges: {
+        amount: Number(freightCharges.amount),
+        currency: freightCharges.currency,
+      },
+      insurance: {
+        amount: Number(insurance.amount),
+        currency: insurance.currency,
+      },
+      tansad: {
+        number: tansad.number, // Adjusted to match your data
+        date: new Date(tansad.date), // Assuming current date if not provided
+      },
+      portOfLoading,
+      portOfDischarge,
+      deliveryPlace,
+      arrivalDate: new Date(arrivalDate),
+      releasedDate: new Date(releasedDate),
+      shipper: shipper,
+      notifyParty: notifyParty,
+      client: client,
+      consignee: consignee,
+      shippingLine,
+      shippingOrder,
+      term,
+      tradingCountry,
+      vessleName,
+      packingList: {
+        totalPackages: Number(packingList.totalPackages),
+        totalNetWeight: Number(packingList.totalNetWeight),
+        totalGrossWeight: Number(packingList.totalGrossWeight),
+        totalVolume: Number(packingList.totalVolume),
+        file: packingListFileRef || null,
+      },
+      portInvoice: {
+        invoiceNumber: portInvoice.invoiceNumber,
+        amount: Number(portInvoice.amount),
+        currency: portInvoice.currency,
+        date: new Date(portInvoice.date),
+        file: portInvoiceFileRef || null,
+      },
     };
+    console.log({ bolData });
 
-    const validatedData = billOfLandingSchema.safeParse(rawData);
-
-    if (!validatedData.success) {
-      console.log(validatedData.error.flatten().fieldErrors);
-      return {
-        success: false,
-        message: "Please fix the errors in the form",
-        errors: validatedData.error.flatten().fieldErrors,
-        inputs: rawData,
-      };
-    }
-
-    const bill = new BillOfLading(validatedData.data);
-    await bill.save();
-    revalidatePath("/dashboard/manage-bill-of-landing");
-    return { success: true, message: "Bill of landing has been saved" };
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.message,
-      inputs: {},
-    };
+    // Save to MongoDB
+    const newBOL = new BillOfLading(bolData);
+    await newBOL.save();
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+    return { error: "Submission failed" };
   }
 }
 

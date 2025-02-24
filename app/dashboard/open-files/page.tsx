@@ -1,7 +1,7 @@
 import { readClients } from "@/actions/Client";
-import BillOfLandingForm from "@/components/bill-of-landing-form";
 
 import { z } from "zod";
+import BillOfLadingForm from "./components/BillForm";
 
 const formSchema = z.object({
   shipperName: z.string().min(2, "Shipper name is required"),
@@ -28,5 +28,5 @@ const formSchema = z.object({
 
 export default async function Page() {
   const clients = await readClients();
-  return <BillOfLandingForm clients={clients} />;
+  return <BillOfLadingForm clients={clients} />;
 }
