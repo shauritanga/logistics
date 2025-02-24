@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -15,20 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-const chartData = [
-  { month: "January", containers: 12 },
-  { month: "February", containers: 2 },
-  { month: "March", containers: 0 },
-  { month: "April", containers: 0 },
-  { month: "May", containers: 0 },
-  { month: "June", containers: 0 },
-  { month: "July", containers: 0 },
-  { month: "August", containers: 0 },
-  { month: "September", containers: 0 },
-  { month: "October", containers: 0 },
-  { month: "November", containers: 0 },
-  { month: "December", containers: 0 },
-];
+import { getMonthlyBillOfLanding } from "@/actions/queries";
 
 const chartConfig = {
   containers: {
@@ -38,6 +25,23 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function WorkProgress() {
+  const [chartData, setChartData] = useState<
+    { month: string; containers: number }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await getMonthlyBillOfLanding();
+        setChartData(response);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   return (
     <Card>
       <CardHeader>

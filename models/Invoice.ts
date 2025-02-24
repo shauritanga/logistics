@@ -1,23 +1,94 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
-export interface IInvoice extends Document {
-  _id: string;
-  blNumber: ObjectId;
-  entryNumber: string;
-  invoiceDate: Date;
-  totalExpense: Number;
-  commission: Number;
-  invoiceAmount: Number;
-}
-
-const invoiceSchema = new Schema<IInvoice>({
-  blNumber: { type: Schema.Types.ObjectId, ref: "Bill" },
-  entryNumber: { type: String },
-  invoiceDate: { type: Date, default: Date.now },
-  totalExpense: { type: Number },
-  commission: { type: Number },
-  invoiceAmount: { type: Number },
-});
+const invoiceSchema = new Schema(
+  {
+    invoiceNumber: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    customer: {
+      name: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+        required: true,
+      },
+      address: {
+        street: String,
+        city: String,
+        state: String,
+        postalCode: String,
+        country: String,
+      },
+    },
+    items: [
+      {
+        description: {
+          type: String,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+        unitPrice: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        total: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+    subtotal: {
+      type: Number,
+      required: true,
+    },
+    tax: {
+      rate: {
+        type: Number,
+        default: 0,
+      },
+      amount: {
+        type: Number,
+        default: 0,
+      },
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
+    issueDate: {
+      type: Date,
+      default: Date.now,
+    },
+    dueDate: {
+      type: Date,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["draft", "sent", "paid", "overdue", "canceled"],
+      default: "draft",
+    },
+    paymentTerms: {
+      type: String,
+      default: "Due upon receipt",
+    },
+    notes: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true, // Adds createdAt and updatedAt fields automatically
+  }
+);
 
 export default mongoose.models?.Invoice ||
-  mongoose.model<IInvoice>("Invoice", invoiceSchema);
+  mongoose.model("Invoice", invoiceSchema);

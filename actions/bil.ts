@@ -2,7 +2,7 @@
 
 import dbConnect from "@/lib/mongodb";
 import { uploadToCloudinary } from "@/lib/uploadFile";
-import BillOfLading from "@/models/File";
+import BillOfLanding from "@/models/BillOfLanding";
 import { ResponseBill } from "@/types";
 import { z } from "zod";
 
@@ -130,7 +130,7 @@ export async function createBillOfLading(
     console.log({ bolData });
 
     // Save to MongoDB
-    const newBOL = new BillOfLading(bolData);
+    const newBOL = new BillOfLanding(bolData);
     await newBOL.save();
     return { success: true };
   } catch (error) {
@@ -142,7 +142,7 @@ export async function createBillOfLading(
 export async function getAllBilOfLanding(): Promise<ResponseBill[]> {
   try {
     await dbConnect();
-    const BilOfLandings = await BillOfLading.find().populate([
+    const BilOfLandings = await BillOfLanding.find().populate([
       "client",
       "shipper",
       "consignee",
