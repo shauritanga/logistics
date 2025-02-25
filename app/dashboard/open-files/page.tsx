@@ -1,7 +1,7 @@
 import { readClients } from "@/actions/Client";
 
 import { z } from "zod";
-import BillOfLadingForm from "./components/BillForm";
+import BillOfLadingForm from "./components/Form";
 
 const formSchema = z.object({
   shipperName: z.string().min(2, "Shipper name is required"),

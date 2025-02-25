@@ -7,23 +7,7 @@ const invoiceSchema = new Schema(
       required: true,
       unique: true,
     },
-    customer: {
-      name: {
-        type: String,
-        required: true,
-      },
-      email: {
-        type: String,
-        required: true,
-      },
-      address: {
-        street: String,
-        city: String,
-        state: String,
-        postalCode: String,
-        country: String,
-      },
-    },
+    client: { type: Schema.Types.ObjectId, ref: "Client" },
     items: [
       {
         description: {
