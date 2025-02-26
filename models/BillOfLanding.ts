@@ -1,6 +1,72 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
-const billOfLadingSchema = new mongoose.Schema(
+// Define the Bill of Lading Interface
+export interface IBillOfLading extends Document {
+  _id: string;
+  bolNumber: string;
+  countryLastConsignment: string;
+  countryOfExeport: string;
+  entryOffice: string;
+  containers: {
+    containerNumber: string;
+    tareWeight: number;
+    grossWeight: number;
+  }[];
+  goods: {
+    description: string;
+    quantity: number;
+    weight: number;
+    value?: number;
+    containerReference?: string;
+  }[];
+  freightCharges: {
+    amount: number;
+    currency: string;
+  };
+  insurance: {
+    amount: number;
+    currency: string;
+  };
+  term: {
+    code?: string;
+    place?: string;
+  };
+  tansad: {
+    number?: string;
+    date?: Date;
+  };
+  portOfLoading: string;
+  portOfDischarge: string;
+  deliveryPlace?: string;
+  arrivalDate?: Date;
+  releasedDate?: string;
+  shipper: ObjectId;
+  notifyParty: ObjectId;
+  client: ObjectId;
+  consignee: ObjectId;
+  shippingLine?: string;
+  shippingOrder?: string;
+  tradingCountry?: string;
+  vessleName?: string;
+  packingList: {
+    totalPackages?: number;
+    totalNetWeight?: number;
+    totalGrossWeight?: number;
+    totalVolume?: number;
+    file?: any;
+  };
+  portInvoice: {
+    invoiceNumber?: string;
+    amount?: number;
+    currency?: string;
+    date?: Date;
+    file?: any;
+  };
+  createdAt: Date;
+}
+
+// Define the Bill of Lading Schema
+const billOfLadingSchema = new Schema<IBillOfLading>(
   {
     bolNumber: { type: String },
     countryLastConsignment: { type: String },
@@ -63,5 +129,6 @@ const billOfLadingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Create the Bill of Lading model
 export default mongoose.models?.BillOfLanding ||
-  mongoose.model("BillOfLanding", billOfLadingSchema);
+  mongoose.model<IBillOfLading>("BillOfLanding", billOfLadingSchema);

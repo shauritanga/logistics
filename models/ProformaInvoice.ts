@@ -1,31 +1,41 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+import mongoose, { Schema, Document, ObjectId } from "mongoose";
+
+// Define the Proforma Invoice Interface
+export interface IProformaInvoice extends Document {
+  _id: string;
+  proformaNumber: string;
+  client: ObjectId;
+  bol: any;
+  items: {
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }[];
+  estimatedSubtotal: number;
+  tax: {
+    rate: number;
+    amount: number;
+  };
+  estimatedTotal: number;
+  issueDate: Date;
+  expiryDate: Date;
+  status: "draft" | "sent" | "accepted" | "rejected" | "expired";
+  shippingTerms: string;
+  validityPeriod: string;
+  notes?: string;
+}
 
 // Define the Proforma Invoice Schema
-const proformaInvoiceSchema = new Schema(
+const proformaInvoiceSchema = new Schema<IProformaInvoice>(
   {
     proformaNumber: {
       type: String,
       required: true,
       unique: true,
     },
-    customer: {
-      name: {
-        type: String,
-        required: true,
-      },
-      email: {
-        type: String,
-        required: true,
-      },
-      address: {
-        street: String,
-        city: String,
-        state: String,
-        postalCode: String,
-        country: String,
-      },
-    },
+    client: { type: Schema.Types.ObjectId, ref: "Client" },
+    bol: { type: Schema.Types.ObjectId, ref: "BillOfLanding" },
     items: [
       {
         description: {
@@ -72,7 +82,7 @@ const proformaInvoiceSchema = new Schema(
     },
     expiryDate: {
       type: Date,
-      required: true, // When the proforma offer expires
+      required: true,
     },
     status: {
       type: String,
@@ -98,4 +108,4 @@ const proformaInvoiceSchema = new Schema(
 
 // Create the Proforma Invoice model
 export default mongoose.models?.ProformaInvoice ||
-  mongoose.model("ProformaInvoice", proformaInvoiceSchema);
+  mongoose.model<IProformaInvoice>("ProformaInvoice", proformaInvoiceSchema);

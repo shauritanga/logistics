@@ -2,7 +2,7 @@
 
 import dbConnect from "@/lib/mongodb";
 import { uploadToCloudinary } from "@/lib/uploadFile";
-import BillOfLanding from "@/models/BillOfLanding";
+import BillOfLanding, { IBillOfLading } from "@/models/BillOfLanding";
 import { ResponseBill } from "@/types";
 import { z } from "zod";
 
@@ -127,7 +127,6 @@ export async function createBillOfLading(
         file: portInvoiceFileRef || null,
       },
     };
-    console.log({ bolData });
 
     // Save to MongoDB
     const newBOL = new BillOfLanding(bolData);
@@ -139,7 +138,7 @@ export async function createBillOfLading(
   }
 }
 
-export async function getAllBilOfLanding(): Promise<ResponseBill[]> {
+export async function getAllBilOfLanding(): Promise<IBillOfLading[] | []> {
   try {
     await dbConnect();
     const BilOfLandings = await BillOfLanding.find().populate([
@@ -149,7 +148,6 @@ export async function getAllBilOfLanding(): Promise<ResponseBill[]> {
       "notifyParty",
     ]);
 
-    console.log({ BilOfLandings });
     return JSON.parse(JSON.stringify(BilOfLandings, null, 2));
   } catch (error) {}
   return [];

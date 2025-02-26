@@ -2,6 +2,8 @@ import { getQuotations } from "@/actions/quotation";
 import QuotationForm from "./components/QuotationForm";
 import QuotationsTable from "./components/QuotationTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const quotations = await getQuotations();
   console.log({ quotations });

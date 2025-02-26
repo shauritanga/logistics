@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const QuotationSchema = new mongoose.Schema(
   {
@@ -7,10 +7,8 @@ const QuotationSchema = new mongoose.Schema(
       required: true,
       unique: true, // Unique identifier for the quotation (e.g., "QTN-2025-001")
     },
-    client: {
-      type: String,
-      required: true, // Name or ID of the client requesting the quote
-    },
+    client: { type: Schema.Types.ObjectId, ref: "Client" },
+    bol: { type: Schema.Types.ObjectId, ref: "BillOfLanding" },
     issuedDate: {
       type: Date,
       default: Date.now, // Date the quotation was issued

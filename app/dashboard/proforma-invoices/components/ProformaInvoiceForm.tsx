@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useTransition, useEffect } from "react";
 import { Input } from "@/components/ui/input"; // Shadcn UI Input
 import { Button } from "@/components/ui/button"; // Shadcn UI Button
 import { Label } from "@/components/ui/label"; // Shadcn UI Label
@@ -12,6 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Client } from "../../clients/components/ClientTable";
+import { IBillOfLading } from "@/models/BillOfLanding";
+import { createProformaInvoice } from "@/actions/proforma";
+import { enqueueSnackbar } from "notistack";
 
 // Define TypeScript interfaces based on the ProformaInvoice schema
 
@@ -30,6 +33,7 @@ interface Tax {
 interface ProformaInvoiceData {
   proformaNumber: string;
   client: string;
+  bol: string;
   items: Item[];
   estimatedSubtotal: number;
   tax: Tax;
@@ -42,13 +46,16 @@ interface ProformaInvoiceData {
 }
 
 export default function ProformaInvoiceForm({
+  bols,
   clients,
 }: {
+  bols: IBillOfLading[];
   clients: Client[];
 }) {
   const [formData, setFormData] = useState<ProformaInvoiceData>({
     proformaNumber: "",
     client: "",
+    bol: "",
     items: [{ description: "", quantity: 1, unitPrice: 0, total: 0 }],
     estimatedSubtotal: 0,
     tax: { rate: 0, amount: 0 },
@@ -59,6 +66,27 @@ export default function ProformaInvoiceForm({
     validityPeriod: "",
     notes: "",
   });
+  const [isPending, startTransition] = useTransition();
+
+  const calculateTotals = (items: Item[], taxRate: number) => {
+    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+    const taxAmount = subtotal * (taxRate / 100);
+    const total = subtotal + taxAmount;
+    return { subtotal, taxAmount, total };
+  };
+
+  useEffect(() => {
+    const { subtotal, taxAmount, total } = calculateTotals(
+      formData.items,
+      formData.tax.rate
+    );
+    setFormData((prev) => ({
+      ...prev,
+      estimatedSubtotal: subtotal,
+      tax: { ...prev.tax, amount: taxAmount },
+      estimatedTotal: total,
+    }));
+  }, [formData.items, formData.tax.rate]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -87,12 +115,11 @@ export default function ProformaInvoiceForm({
         ...newItems[index],
         [field]: field === "description" ? value : Number(value),
       };
+      // Auto-calculate total
+      newItems[index].total =
+        newItems[index].quantity * newItems[index].unitPrice;
       return { ...prev, items: newItems };
     });
-  };
-
-  const handleCustomerChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, client: value }));
   };
 
   const addItem = () => {
@@ -105,18 +132,36 @@ export default function ProformaInvoiceForm({
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Here you would typically send formData to your backend API
+  const handleSelectChange =
+    (field: keyof typeof formData) => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    };
+
+  const submitAction = () => {
+    startTransition(async () => {
+      try {
+        await createProformaInvoice(formData);
+        enqueueSnackbar("Proforma successfully submited", {
+          variant: "success",
+        });
+      } catch (error) {
+        console.log({ error });
+        enqueueSnackbar("Proforma submission failed", {
+          variant: "error",
+        });
+      }
+    });
   };
 
   return (
     <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Create Proforma Invoice</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form action={submitAction} className="space-y-6">
         {/* Proforma Number */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="proformaNumber">Proforma Invoice Number</Label>
             <Input
@@ -130,13 +175,34 @@ export default function ProformaInvoiceForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="customerId">Customer</Label>
+            <Label htmlFor="bol">Bill of landing</Label>
             <Select
-              onValueChange={handleCustomerChange}
+              onValueChange={handleSelectChange("bol")}
+              value={formData.bol}
+            >
+              <SelectTrigger
+                id="bol"
+                className="rounded border border-gray-300"
+              >
+                <SelectValue placeholder="Select a bil of landing" />
+              </SelectTrigger>
+              <SelectContent>
+                {bols.map((bol: IBillOfLading) => (
+                  <SelectItem key={bol._id} value={bol._id}>
+                    {bol.bolNumber}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="client">Client</Label>
+            <Select
+              onValueChange={handleSelectChange("client")}
               value={formData.client}
             >
               <SelectTrigger
-                id="customerId"
+                id="client"
                 className="rounded border border-gray-300"
               >
                 <SelectValue placeholder="Select a customer" />
@@ -293,6 +359,7 @@ export default function ProformaInvoiceForm({
                     id={`itemTotal${index}`}
                     type="number"
                     value={item.total}
+                    readOnly
                     onChange={(e) =>
                       handleItemChange(index, "total", e.target.value)
                     }
@@ -325,6 +392,7 @@ export default function ProformaInvoiceForm({
               value={formData.estimatedSubtotal}
               onChange={handleChange}
               required
+              readOnly
               min="0"
               step="0.01"
               placeholder="1500.00"
@@ -355,6 +423,7 @@ export default function ProformaInvoiceForm({
               onChange={handleChange}
               min="0"
               step="0.01"
+              readOnly
               placeholder="195.00"
               className="rounded border border-gray-300"
             />
@@ -369,6 +438,7 @@ export default function ProformaInvoiceForm({
             value={formData.estimatedTotal}
             onChange={handleChange}
             required
+            readOnly
             min="0"
             step="0.01"
             placeholder="1695.00"
@@ -442,7 +512,7 @@ export default function ProformaInvoiceForm({
             type="submit"
             className="bg-[#f38633] hover:bg-[#f38633] text-white rounded"
           >
-            Create Proforma Invoice
+            {isPending ? "Submiting..." : "Submit"}
           </Button>
         </div>
       </form>
