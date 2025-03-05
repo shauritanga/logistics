@@ -33,9 +33,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { ResponseBill } from "@/types";
 import { format, parseISO } from "date-fns";
-import { IBillOfLading } from "@/models/BillOfLanding";
+import { IBillOfLanding } from "@/models/BillOfLanding";
 
-const columns: ColumnDef<IBillOfLading>[] = [
+const columns: ColumnDef<IBillOfLanding>[] = [
   {
     accessorKey: "bolNumber",
     header: ({ column }) => {
@@ -161,7 +161,7 @@ const columns: ColumnDef<IBillOfLading>[] = [
 ];
 
 interface BillOfLadingTableProps {
-  initialData: IBillOfLading[];
+  initialData: IBillOfLanding[];
 }
 
 export default function BillOfLadingTable({

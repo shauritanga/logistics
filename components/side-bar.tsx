@@ -104,6 +104,9 @@ export default function Sidebar() {
                   <NavItem href="/dashboard/clients" icon={BarChart2}>
                     Clients
                   </NavItem>
+                  <NavItem href="/dashboard/reports" icon={Folder}>
+                    Reports
+                  </NavItem>
                   <NavItem href="/dashboard/documents" icon={Folder}>
                     Documents
                   </NavItem>
@@ -117,7 +120,7 @@ export default function Sidebar() {
                   <NavItem href="/dashboard/open-files" icon={Wallet}>
                     Open Files
                   </NavItem>
-                  <NavItem href="/dashboard/manage-bil" icon={Receipt}>
+                  <NavItem href="/dashboard/manage-bols" icon={Receipt}>
                     Manage Files
                   </NavItem>
                   <NavItem href="/dashboard/manage-cargo" icon={CreditCard}>

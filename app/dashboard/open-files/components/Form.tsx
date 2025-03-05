@@ -7,6 +7,7 @@ import React, { ChangeEvent, useTransition } from "react";
 import { Client } from "../../clients/components/ClientTable";
 import { enqueueSnackbar } from "notistack";
 import { createBillOfLading } from "@/actions/bil";
+import { useRouter } from "next/navigation";
 
 // TypeScript interfaces remain unchanged
 // ... (keeping all interfaces as they were)
@@ -90,6 +91,7 @@ interface BillOfLadingFormData {
 }
 
 export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
+  const router = useRouter();
   // Initial state and hooks unchanged
   const initialState: BillOfLadingFormData = {
     bolNumber: "",
@@ -256,6 +258,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
         enqueueSnackbar("BOL has been submitted successfully", {
           variant: "success",
         });
+        router.push("/dashboard/manage-bols");
       } else {
         enqueueSnackbar("BOL submission failed", {
           variant: "error",
@@ -331,23 +334,6 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               className="w-full p-2 border rounded"
             >
               <option value="">Select notify party</option>
-              {clients?.map((client) => (
-                <option key={client._id} value={client._id}>
-                  {client.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label>Client</Label>
-            <select
-              name="client"
-              value={formData.client}
-              onChange={handleInputChange}
-              required
-              className="w-full p-2 border rounded"
-            >
-              <option value="">Select client</option>
               {clients?.map((client) => (
                 <option key={client._id} value={client._id}>
                   {client.name}
@@ -662,7 +648,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
         </div>
       </section>
 
-      {/* Documents */}
+      {/* Documents
       <section className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-700">Documents</h3>
         <div className="space-y-6">
@@ -764,7 +750,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Submit */}
       <div className="flex justify-end">

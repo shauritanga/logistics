@@ -1,3 +1,4 @@
+"use client";
 import {
   LogOut,
   MoveUpRight,
@@ -5,7 +6,7 @@ import {
   CreditCard,
   FileText,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -36,16 +37,11 @@ export default function Profile01({
   name = defaultProfile.name,
   role = defaultProfile.role,
   avatar = defaultProfile.avatar,
-  subscription = defaultProfile.subscription,
 }: Partial<Profile01Props> = defaultProfile) {
+  const { data: session, status } = useSession();
+
+  console.log({ session });
   const menuItems: MenuItem[] = [
-    {
-      label: "Subscription",
-      value: subscription,
-      href: "#",
-      icon: <CreditCard className="w-4 h-4" />,
-      external: false,
-    },
     {
       label: "Settings",
       href: "#",
@@ -60,7 +56,7 @@ export default function Profile01({
   ];
 
   return (
-    <div className="w-full max-w-sm mx-auto">
+    <div className="w-full max-w-sm mx-auto bg-white">
       <div className="relative overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800">
         <div className="relative px-6 pt-12 pb-6">
           <div className="flex items-center gap-4 mb-8">
@@ -78,9 +74,11 @@ export default function Profile01({
             {/* Profile Info */}
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-                {name}
+                {session?.user.name}
               </h2>
-              <p className="text-zinc-600 dark:text-zinc-400">{role}</p>
+              <p className="text-zinc-600 dark:text-zinc-400">
+                {session?.user.role}
+              </p>
             </div>
           </div>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-6" />

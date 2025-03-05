@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
 });
 
 // Invoice PDF Component
-export function InvoicePDF({ invoice }: { invoice: IProformaInvoice }) {
+export function InvoicePDF({ invoice }: { invoice: any }) {
   const formatDate = (date: Date) => date.toLocaleDateString();
 
   return (
@@ -169,7 +169,7 @@ export function InvoicePDF({ invoice }: { invoice: IProformaInvoice }) {
             <Text style={{ width: "15%", textAlign: "center" }}>Price</Text>
             <Text style={{ width: "15%", textAlign: "center" }}>Amount</Text>
           </View>
-          {invoice.items.map((item, index) => (
+          {invoice.items.map((item: any, index: any) => (
             <View style={styles.tableRow} key={index}>
               <Text style={{ width: "5%" }}>{index + 1}</Text>
               <Text style={{ width: "45%" }}>{item.description}</Text>

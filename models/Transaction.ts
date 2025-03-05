@@ -7,6 +7,7 @@ export interface ITransaction extends Document {
   status: "pending" | "approved" | "rejected";
   amount: number;
   category: "payments" | "expenses";
+  currency: "USD" | "TZS";
   description: string;
 }
 
@@ -14,6 +15,7 @@ const transactionSchema = new Schema<ITransaction>({
   transactionDate: { type: Date, default: Date.now },
   client: { type: Schema.Types.ObjectId, ref: "Client" },
   amount: { type: Number, required: true },
+  currency: { type: String, required: true },
   status: {
     type: String,
     enum: ["pending", "approved", "rejected"],

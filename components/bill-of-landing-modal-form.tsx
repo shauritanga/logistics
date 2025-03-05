@@ -52,7 +52,6 @@ import {
 } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { table } from "console";
 
 const formSchema = z.object({
   shipperName: z.string().min(2, "Shipper name is required"),

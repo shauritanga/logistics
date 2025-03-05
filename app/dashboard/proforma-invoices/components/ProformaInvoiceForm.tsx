@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Client } from "../../clients/components/ClientTable";
-import { IBillOfLading } from "@/models/BillOfLanding";
+import { IBillOfLanding } from "@/models/BillOfLanding";
 import { createProformaInvoice } from "@/actions/proforma";
 import { enqueueSnackbar } from "notistack";
 
@@ -31,7 +31,6 @@ interface Tax {
 }
 
 interface ProformaInvoiceData {
-  proformaNumber: string;
   client: string;
   bol: string;
   items: Item[];
@@ -49,11 +48,10 @@ export default function ProformaInvoiceForm({
   bols,
   clients,
 }: {
-  bols: IBillOfLading[];
+  bols: IBillOfLanding[];
   clients: Client[];
 }) {
   const [formData, setFormData] = useState<ProformaInvoiceData>({
-    proformaNumber: "",
     client: "",
     bol: "",
     items: [{ description: "", quantity: 1, unitPrice: 0, total: 0 }],
@@ -161,19 +159,7 @@ export default function ProformaInvoiceForm({
       <h1 className="text-2xl font-bold mb-6">Create Proforma Invoice</h1>
       <form action={submitAction} className="space-y-6">
         {/* Proforma Number */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="proformaNumber">Proforma Invoice Number</Label>
-            <Input
-              id="proformaNumber"
-              name="proformaNumber"
-              value={formData.proformaNumber}
-              onChange={handleChange}
-              required
-              placeholder="e.g., PF-001"
-              className="rounded border border-gray-300"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="bol">Bill of landing</Label>
             <Select
@@ -187,7 +173,7 @@ export default function ProformaInvoiceForm({
                 <SelectValue placeholder="Select a bil of landing" />
               </SelectTrigger>
               <SelectContent>
-                {bols.map((bol: IBillOfLading) => (
+                {bols.map((bol: IBillOfLanding) => (
                   <SelectItem key={bol._id} value={bol._id}>
                     {bol.bolNumber}
                   </SelectItem>

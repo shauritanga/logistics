@@ -49,6 +49,7 @@ interface Transaction {
   transactionDate: Date;
   status: "pending" | "approved" | "rejected";
   amount: number;
+  currency: string;
   category: "payments" | "expenses";
 }
 
@@ -85,7 +86,8 @@ export function PaymentDataTable({
       },
     },
     {
-      accessorKey: "client.name",
+      accessorFn: (row: Transaction) => row.client.name, // Function to access nested property
+      id: "client.name",
       header: ({ column }: { column: any }) => {
         return (
           <Button
@@ -103,6 +105,7 @@ export function PaymentDataTable({
         return <div>{name}</div>;
       },
     },
+
     {
       accessorKey: "category",
       header: "Category",
@@ -124,7 +127,10 @@ export function PaymentDataTable({
         return <div className="capitalize">{formmater.format(amount)}</div>;
       },
     },
-
+    {
+      accessorKey: "currency",
+      header: "Currency",
+    },
     {
       accessorKey: "status",
       header: "Status",
@@ -203,7 +209,6 @@ export function PaymentDataTable({
           }}
           className="w-[300px] rounded border border-gray-300"
         />
-
         <Button
           onClick={() => setOpenForm(true)}
           className=" bg-[#f38633] hover:bg-[#d4915e] text-white rounded"

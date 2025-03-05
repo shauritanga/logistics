@@ -23,6 +23,7 @@ interface Transaction {
   client: { name: string };
   transactionDate: Date;
   amount: number;
+  currency: string;
   category: "payments" | "expenses";
   status: "pending" | "approved" | "rejected";
 }
@@ -48,6 +49,7 @@ export default function TransactionTable({
           <TableHead className="py-2 px-4 border-b">Client Name</TableHead>
           <TableHead className="py-2 px-4 border-b">Date</TableHead>
           <TableHead className="py-2 px-4 border-b">Amount</TableHead>
+          <TableHead className="py-2 px-4 border-b">Currency</TableHead>
           <TableHead className="py-2 px-4 border-b">Category</TableHead>
           <TableHead className="py-2 px-4 border-b">Actions</TableHead>
         </TableRow>
@@ -66,6 +68,9 @@ export default function TransactionTable({
             </TableCell>
             <TableCell className="py-2 px-4 border-b">
               {transaction.amount}
+            </TableCell>
+            <TableCell className="py-2 px-4 border-b">
+              {transaction.currency}
             </TableCell>
             <TableCell className="py-2 px-4 border-b">
               {transaction.category}

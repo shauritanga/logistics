@@ -25,10 +25,22 @@ export async function createClient(
     const district = formData.get("district") as string;
     const country = formData.get("country") as string;
     const region = formData.get("region") as string;
-    const street = formData.get("street") as string;
+    const tin = formData.get("tin") as string;
+    const vat = formData.get("vat") as string;
+    const streetAddress = formData.get("streetAddress") as string;
     const phone = formData.get("phone") as string;
 
-    console.log({ name, email, district, country, region, street, phone });
+    console.log({
+      name,
+      email,
+      district,
+      country,
+      region,
+      streetAddress,
+      phone,
+      tin,
+      vat,
+    });
 
     const employee = new Client({
       name,
@@ -36,7 +48,9 @@ export async function createClient(
       district,
       country,
       region,
-      street,
+      streetAddress,
+      tin,
+      vat,
       phone,
     });
     await employee.save();
@@ -89,15 +103,17 @@ export async function updateClient(
       name: formData.get("name") as string,
       district: formData.get("district") as string,
       region: formData.get("region") as string,
-      street: formData.get("street") as string,
+      streetAddress: formData.get("streetAddress") as string,
       country: formData.get("country") as string,
+      tin: formData.get("tin") as string,
+      vat: formData.get("vat") as string,
       email: formData.get("email") as string,
       phone: formData.get("phone") as string,
     };
 
     // Update employee in database
     const client = await Client.findByIdAndUpdate(id, data, { new: true });
-    if (!client) throw new Error("Employee not found");
+    if (!client) throw new Error("Client not found");
     revalidatePath("/dashboard/clients");
     return { success: true, message: "Client has benn updated successfully" };
   } catch (error) {

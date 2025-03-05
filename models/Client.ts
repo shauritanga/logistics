@@ -1,13 +1,15 @@
-import mongoose, { Schema, Document, ObjectId } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IClient extends Document {
   _id: string;
   name: string;
   district: string;
   region: string;
-  street: string;
+  streetAddress: string;
   country: string;
   email: string;
+  tin: string;
+  vat: string;
   phone: string;
 }
 
@@ -17,7 +19,9 @@ const clientSchema = new Schema<IClient>({
   district: { type: String, required: true },
   region: { type: String, required: true },
   phone: { type: String },
-  street: { type: String },
+  streetAddress: { type: String },
+  tin: { type: String, unique: true },
+  vat: { type: String, unique: true },
   country: { type: String },
 });
 

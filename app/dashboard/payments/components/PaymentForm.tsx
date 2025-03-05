@@ -34,6 +34,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     client: "",
     transactionDate: "",
     amount: "",
+    currency: "TZS",
     category: "payments",
     description: "",
   });
@@ -97,23 +98,44 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 className="p-2 rounded border border-gray-300"
               />
             </div>
-            <div>
-              <Label
-                htmlFor="amount"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Amount
-              </Label>
-              <Input
-                type="number"
-                name="amount"
-                id="amount"
-                min={0}
-                value={formData.amount}
-                onChange={handleChange}
-                required
-                className="p-2 rounded border border-gray-300"
-              />
+            <div className="w-full flex flex-row gap-5  items-center">
+              <div className="flex-1">
+                <Label
+                  htmlFor="amount"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Amount
+                </Label>
+                <Input
+                  type="number"
+                  name="amount"
+                  id="amount"
+                  min={0}
+                  value={formData.amount}
+                  onChange={handleChange}
+                  required
+                  className="p-2 rounded border border-gray-300"
+                />
+              </div>
+              <div className="flex-1">
+                <Label
+                  htmlFor="currency"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Currency
+                </Label>
+                <select
+                  name="currency"
+                  id="currency"
+                  defaultValue={formData.currency}
+                  onChange={handleChange}
+                  className="block mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  required
+                >
+                  <option value="USD">USD</option>
+                  <option value="TZS">TZS</option>
+                </select>
+              </div>
             </div>
             <div>
               <label
@@ -125,11 +147,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               <select
                 name="category"
                 id="category"
-                value={formData.category}
+                defaultValue={formData.category}
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                 required
-                disabled
               >
                 <option value="payments">Payments</option>
                 <option value="expenses">Expenses</option>
@@ -171,7 +192,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               type="submit"
               className="bg-[#f38633] hover:bg-[#d4915e] text-white"
             >
-              Add Transaction
+              {isPending ? "Submiting..." : "Submit"}
             </Button>
           </DialogFooter>
         </form>

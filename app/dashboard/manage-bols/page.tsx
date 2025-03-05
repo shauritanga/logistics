@@ -1,23 +1,20 @@
 import { MetricsCard } from "@/components/metrics-card";
 import BillOfLadingTable from "@/components/bill-of-landing-table";
 import { getAllBilOfLanding } from "@/actions/bil";
-import { parseISO, isToday, isThisWeek, isThisMonth } from "date-fns";
+import { isToday, isThisWeek, isThisMonth } from "date-fns";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const bilOfLandings = await getAllBilOfLanding();
+  const bols = await getAllBilOfLanding();
+  console.log({ bols });
 
-  const todayCount = bilOfLandings.filter((bill) =>
-    isToday(bill.createdAt)
-  ).length;
+  const todayCount = bols.filter((bol) => isToday(bol.createdAt)).length;
 
-  const thisWeekCount = bilOfLandings.filter((bill) =>
-    isThisWeek(bill.createdAt)
-  ).length;
+  const thisWeekCount = bols.filter((bol) => isThisWeek(bol.createdAt)).length;
 
-  const thisMonthCount = bilOfLandings.filter((bill) =>
-    isThisMonth(bill.createdAt)
+  const thisMonthCount = bols.filter((bol) =>
+    isThisMonth(bol.createdAt)
   ).length;
 
   return (
@@ -62,7 +59,7 @@ export default async function Page() {
           </div>
 
           <div className="mt-12">
-            <BillOfLadingTable initialData={bilOfLandings!} />
+            <BillOfLadingTable initialData={bols!} />
           </div>
         </main>
       </div>

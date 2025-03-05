@@ -1,9 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
-import { uploadToCloudinary } from "@/lib/uploadFile";
-import BillOfLanding, { IBillOfLading } from "@/models/BillOfLanding";
-import { ResponseBill } from "@/types";
+import BillOfLanding, { IBillOfLanding } from "@/models/BillOfLanding";
 import { z } from "zod";
 
 const billOfLandingSchema = z.object({
@@ -35,7 +33,6 @@ export async function createBillOfLading(
       shipper,
       consignee,
       notifyParty,
-      client,
       countryLastConsignment,
       tradingCountry,
       entryOffice,
@@ -58,16 +55,16 @@ export async function createBillOfLading(
       portInvoice,
     } = formData;
 
-    const packingListFileRef = await uploadToCloudinary(
-      packingList.file,
-      bolNumber,
-      "packingList"
-    );
-    const portInvoiceFileRef = await uploadToCloudinary(
-      portInvoice.file,
-      bolNumber,
-      "portInvoice"
-    );
+    // const packingListFileRef = await uploadToCloudinary(
+    //   packingList.file,
+    //   bolNumber,
+    //   "packingList"
+    // );
+    // const portInvoiceFileRef = await uploadToCloudinary(
+    //   portInvoice.file,
+    //   bolNumber,
+    //   "portInvoice"
+    // );
 
     const bolData = {
       bolNumber,
@@ -105,27 +102,26 @@ export async function createBillOfLading(
       releasedDate: new Date(releasedDate),
       shipper: shipper,
       notifyParty: notifyParty,
-      client: client,
       consignee: consignee,
       shippingLine,
       shippingOrder,
       term,
       tradingCountry,
       vessleName,
-      packingList: {
-        totalPackages: Number(packingList.totalPackages),
-        totalNetWeight: Number(packingList.totalNetWeight),
-        totalGrossWeight: Number(packingList.totalGrossWeight),
-        totalVolume: Number(packingList.totalVolume),
-        file: packingListFileRef || null,
-      },
-      portInvoice: {
-        invoiceNumber: portInvoice.invoiceNumber,
-        amount: Number(portInvoice.amount),
-        currency: portInvoice.currency,
-        date: new Date(portInvoice.date),
-        file: portInvoiceFileRef || null,
-      },
+      // packingList: {
+      //   totalPackages: Number(packingList.totalPackages),
+      //   totalNetWeight: Number(packingList.totalNetWeight),
+      //   totalGrossWeight: Number(packingList.totalGrossWeight),
+      //   totalVolume: Number(packingList.totalVolume),
+      //   file: packingListFileRef || null,
+      // },
+      // portInvoice: {
+      //   invoiceNumber: portInvoice.invoiceNumber,
+      //   amount: Number(portInvoice.amount),
+      //   currency: portInvoice.currency,
+      //   date: new Date(portInvoice.date),
+      //   file: portInvoiceFileRef || null,
+      // },
     };
 
     // Save to MongoDB
@@ -138,11 +134,10 @@ export async function createBillOfLading(
   }
 }
 
-export async function getAllBilOfLanding(): Promise<IBillOfLading[] | []> {
+export async function getAllBilOfLanding(): Promise<IBillOfLanding[] | []> {
   try {
     await dbConnect();
     const BilOfLandings = await BillOfLanding.find().populate([
-      "client",
       "shipper",
       "consignee",
       "notifyParty",

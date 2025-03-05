@@ -1,6 +1,6 @@
 import { readClients } from "@/actions/Client";
 import ClientsTable from "./components/ClientTable";
-import AddClientForm from "./components/AddClientForm";
+import AddClientForm from "./components/Form";
 
 export default async function ClientsPage() {
   const clients = await readClients();

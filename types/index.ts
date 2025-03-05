@@ -1,3 +1,5 @@
+import { Client } from "@/app/dashboard/clients/components/ClientTable";
+
 export type ActionResponse = {
   success: boolean;
   message: string;
@@ -86,3 +88,26 @@ export interface Quotation {
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 }
+
+export type Invoice = {
+  _id: string;
+  invoiceNumber: string;
+  client: Client;
+  items: [
+    {
+      description: string;
+      quantity: number;
+      unitPrice: number;
+      total: number;
+    }
+  ];
+  subtotal: number;
+  tax: { rate: number; amount: number };
+  discount: { rate: number; amount: number };
+  totalAmount: number;
+  issueDate: Date;
+  dueDate: Date;
+  status: string;
+  paymentTerms: string;
+  notes: string;
+};

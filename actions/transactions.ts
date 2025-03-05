@@ -12,23 +12,32 @@ export async function createTransaction(
   _: ActionResponse | null,
   formData: FormData
 ): Promise<ActionResponse> {
+  // Extract data from form
+  const client = formData.get("client") as string;
+  const amount = formData.get("amount") as string;
+  const currency = formData.get("currency") as string;
+  const category = formData.get("category") as string;
+  const transactionDate = formData.get("transactionDate") as string;
+  const description = formData.get("description") as string;
   try {
     await dbConnect();
     const session = await auth();
     const user = session?.user;
 
-    await checkPermission(user?.role ?? "USER", "users", "create");
+    await checkPermission(user?.role ?? "USER", "transactions", "create");
 
-    // Extract data from form
-    const client = formData.get("client") as string;
-    const amount = formData.get("amount") as string;
-    const category = formData.get("category") as string;
-    const transactionDate = formData.get("transactionDate") as string;
-    const description = formData.get("description") as string;
-    console.log({ client, amount, category, transactionDate, description });
+    console.log({
+      currency,
+      client,
+      amount,
+      category,
+      transactionDate,
+      description,
+    });
 
     const transaction = new Transaction({
       client,
+      currency,
       amount,
       category,
       transactionDate,
@@ -37,12 +46,9 @@ export async function createTransaction(
     await transaction.save();
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/employees");
-    return { success: true, message: "Employee has been saved" };
+    return { success: true, message: `${category} has been saved` };
   } catch (error: any) {
-    if (error.code === 11000) {
-      return { success: false, message: "Email already exists" };
-    }
-    return { success: false, message: "Employee creation failed" };
+    return { success: false, message: `${category} creation failed` };
   }
 }
 
@@ -51,7 +57,7 @@ export async function readTransactions() {
   const session = await auth();
   const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "read");
+  await checkPermission(user?.role ?? "USER", "transactions", "read");
 
   // Fetch employee from database
   const employees = await Transaction.find({ status: "pending" }).populate(
@@ -77,7 +83,7 @@ export async function readTransactionsByCategory(category: string) {
   const session = await auth();
   const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "read");
+  await checkPermission(user?.role ?? "USER", "transactions", "read");
 
   // Fetch employee from database
   const transactions = await Transaction.find({ category: category }).populate(
@@ -91,12 +97,12 @@ export async function readTransaction(id: number) {
   const session = await auth();
   const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "read");
+  await checkPermission(user?.role ?? "USER", "transactions", "read");
 
   // Fetch employee from database
-  const employee = await Transaction.findById(id);
-  if (!employee) throw new Error("Employee not found");
-  return employee;
+  const transaction = await Transaction.findById(id);
+  if (!transaction) throw new Error("Transaction not found");
+  return transaction;
 }
 
 export async function updateTransaction(id: string, data: any) {
@@ -104,13 +110,13 @@ export async function updateTransaction(id: string, data: any) {
   const session = await auth();
   const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "update");
+  await checkPermission(user?.role ?? "USER", "transactions", "update");
 
   // Update employee in database
   const transaction = await Transaction.findByIdAndUpdate(id, data, {
     new: true,
   });
-  if (!transaction) throw new Error("Employee not found");
+  if (!transaction) throw new Error("Transaction not found");
   revalidatePath("/dashboard/transactions");
   return transaction;
 }
@@ -120,10 +126,10 @@ export async function deleteTransaction(id: number) {
   const session = await auth();
   const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "users", "delete");
+  await checkPermission(user?.role ?? "USER", "Transaction", "delete");
 
   // Delete employee from database
   const result = await User.findByIdAndDelete(id);
-  if (!result) throw new Error("Employee not found");
-  return { message: "Employee deleted successfully" };
+  if (!result) throw new Error("Transaction not found");
+  return { message: "Transaction deleted successfully" };
 }

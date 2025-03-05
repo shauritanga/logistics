@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, ObjectId } from "mongoose";
 
 // Define the Bill of Lading Interface
-export interface IBillOfLading extends Document {
+export interface IBillOfLanding extends Document {
   _id: string;
   bolNumber: string;
   countryLastConsignment: string;
@@ -40,10 +40,9 @@ export interface IBillOfLading extends Document {
   deliveryPlace?: string;
   arrivalDate?: Date;
   releasedDate?: string;
-  shipper: ObjectId;
-  notifyParty: ObjectId;
-  client: ObjectId;
-  consignee: ObjectId;
+  shipper: Schema.Types.ObjectId;
+  notifyParty: Schema.Types.ObjectId;
+  consignee: Schema.Types.ObjectId;
   shippingLine?: string;
   shippingOrder?: string;
   tradingCountry?: string;
@@ -66,7 +65,7 @@ export interface IBillOfLading extends Document {
 }
 
 // Define the Bill of Lading Schema
-const billOfLadingSchema = new Schema<IBillOfLading>(
+const billOfLandingSchema = new Schema<IBillOfLanding>(
   {
     bolNumber: { type: String },
     countryLastConsignment: { type: String },
@@ -105,7 +104,6 @@ const billOfLadingSchema = new Schema<IBillOfLading>(
     releasedDate: { type: String },
     shipper: { type: Schema.Types.ObjectId, ref: "Client" },
     notifyParty: { type: Schema.Types.ObjectId, ref: "Client" },
-    client: { type: Schema.Types.ObjectId, ref: "Client" },
     consignee: { type: Schema.Types.ObjectId, ref: "Client" },
     shippingLine: { type: String },
     shippingOrder: { type: String },
@@ -131,4 +129,4 @@ const billOfLadingSchema = new Schema<IBillOfLading>(
 
 // Create the Bill of Lading model
 export default mongoose.models?.BillOfLanding ||
-  mongoose.model<IBillOfLading>("BillOfLanding", billOfLadingSchema);
+  mongoose.model<IBillOfLanding>("BillOfLanding", billOfLandingSchema);

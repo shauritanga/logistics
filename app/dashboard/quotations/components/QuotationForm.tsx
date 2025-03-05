@@ -136,11 +136,18 @@ export default function QuotationForm() {
                   <FormItem>
                     <FormLabel>Client Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="ABC Corp"
-                        {...field}
-                        className="border-gray-300 dark:border-gray-700"
-                      />
+                      <Select {...field}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a fruit" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="apple">Apple</SelectItem>
+                          <SelectItem value="banana">Banana</SelectItem>
+                          <SelectItem value="blueberry">Blueberry</SelectItem>
+                          <SelectItem value="grapes">Grapes</SelectItem>
+                          <SelectItem value="pineapple">Pineapple</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

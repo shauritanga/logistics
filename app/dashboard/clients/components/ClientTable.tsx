@@ -16,18 +16,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import EditClientModal from "./EditClientModal";
 import { deleteClient } from "@/actions/Client";
 import { enqueueSnackbar } from "notistack";
+import EditClientForm from "./EditForm";
 
 export interface Client {
   _id: string;
   name: string;
   district: string;
   region: string;
-  street: string;
+  streetAddress: string;
   country: string;
   email: string;
+  tin: string;
+  vat: string;
   phone: string;
 }
 
@@ -73,7 +75,7 @@ const ClientsTable = ({ clients }: { clients: Client[] }) => {
                 {client.region}
               </TableCell>
               <TableCell className="py-2 px-4 border-b">
-                {client.street}
+                {client.streetAddress}
               </TableCell>
               <TableCell className="py-2 px-4 border-b">
                 {client.country}
@@ -113,7 +115,7 @@ const ClientsTable = ({ clients }: { clients: Client[] }) => {
       </Table>
 
       {selectedClient && (
-        <EditClientModal
+        <EditClientForm
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           client={selectedClient}

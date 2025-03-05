@@ -93,7 +93,7 @@ export async function getRecentBillOfLanding() {
     const recentBillOfLanding = await BillOfLanding.find()
       .sort({ createdAt: -1 })
       .limit(3)
-      .populate(["client", "shipper", "consignee", "notifyParty"])
+      .populate(["shipper", "consignee", "notifyParty"])
       .exec();
     return JSON.parse(JSON.stringify(recentBillOfLanding));
   } catch (error) {

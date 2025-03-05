@@ -1,11 +1,14 @@
-import mongoose, { Schema, Document, ObjectId } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+import * as AutoIncrement from "mongoose-sequence"; // Correct import
+
+const AutoInc = (AutoIncrement as any)(mongoose); // Initialize with mongoose instance
 
 // Define the Proforma Invoice Interface
 export interface IProformaInvoice extends Document {
-  _id: string;
-  proformaNumber: string;
-  client: ObjectId;
-  bol: any;
+  _id: mongoose.Types.ObjectId;
+  proformaNumber: String;
+  client: mongoose.Types.ObjectId;
+  bol: mongoose.Types.ObjectId;
   items: {
     description: string;
     quantity: number;
@@ -30,12 +33,11 @@ export interface IProformaInvoice extends Document {
 const proformaInvoiceSchema = new Schema<IProformaInvoice>(
   {
     proformaNumber: {
-      type: String,
-      required: true,
+      type: Number,
       unique: true,
     },
-    client: { type: Schema.Types.ObjectId, ref: "Client" },
-    bol: { type: Schema.Types.ObjectId, ref: "BillOfLanding" },
+    client: { type: Schema.Types.ObjectId, ref: "Client", required: true },
+    bol: { type: Schema.Types.ObjectId, ref: "BillOfLanding", required: true }, // Fixed typo
     items: [
       {
         description: {
@@ -90,11 +92,11 @@ const proformaInvoiceSchema = new Schema<IProformaInvoice>(
       default: "draft",
     },
     shippingTerms: {
-      type: String, // e.g., FOB, CIF for international trade
+      type: String,
       default: "Not specified",
     },
     validityPeriod: {
-      type: String, // e.g., "Valid for 30 days"
+      type: String,
       default: "Valid until expiry date",
     },
     notes: {
@@ -106,6 +108,35 @@ const proformaInvoiceSchema = new Schema<IProformaInvoice>(
   }
 );
 
+// Auto-increment proformaNumber instead of _id
+proformaInvoiceSchema.plugin(AutoInc, {
+  id: "proformaInvoice_seq",
+  inc_field: "proformaNumber", // Use proformaNumber for incrementing
+  start_seq: 1,
+  transform: (num: number) => `PROF${String(num).padStart(4, "0")}`,
+});
+
+proformaInvoiceSchema.virtual("formattedProformaNumber").get(function () {
+  return `PROF${String(this.proformaNumber).padStart(4, "0")}`;
+});
+
+// Pre-save hook to calculate totals (optional improvement)
+// proformaInvoiceSchema.pre("save", function (next) {
+//   this.items.forEach((item) => {
+//     item.total = item.quantity * item.unitPrice;
+//   });
+//   this.estimatedSubtotal = this.items.reduce(
+//     (sum, item) => sum + item.total,
+//     0
+//   );
+//   this.tax.amount = (this.tax.rate / 100) * this.estimatedSubtotal;
+//   this.estimatedTotal = this.estimatedSubtotal + this.tax.amount;
+//   next();
+// });
+
+// Enable virtuals when converting to JSON or objects (optional but recommended)
+proformaInvoiceSchema.set("toJSON", { virtuals: true });
+proformaInvoiceSchema.set("toObject", { virtuals: true });
 // Create the Proforma Invoice model
 export default mongoose.models?.ProformaInvoice ||
   mongoose.model<IProformaInvoice>("ProformaInvoice", proformaInvoiceSchema);

@@ -98,22 +98,24 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               />
             </div>
             <div>
-              <Label
-                htmlFor="amount"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Amount
-              </Label>
-              <Input
-                type="number"
-                name="amount"
-                id="amount"
-                min={0}
-                value={formData.amount}
-                onChange={handleChange}
-                required
-                className="p-2 rounded border border-gray-300"
-              />
+              <div>
+                <Label
+                  htmlFor="amount"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Amount
+                </Label>
+                <Input
+                  type="number"
+                  name="amount"
+                  id="amount"
+                  min={0}
+                  value={formData.amount}
+                  onChange={handleChange}
+                  required
+                  className="p-2 rounded border border-gray-300"
+                />
+              </div>
             </div>
             <div>
               <label
@@ -126,6 +128,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 name="category"
                 id="category"
                 value={formData.category}
+                defaultValue={formData.category}
                 onChange={handleChange}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                 required

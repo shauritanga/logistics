@@ -85,7 +85,8 @@ export function PaymentDataTable({
       },
     },
     {
-      accessorKey: "client.name",
+      accessorFn: (row: Transaction) => row.client.name, // Function to access nested property
+      id: "client.name",
       header: ({ column }: { column: any }) => {
         return (
           <Button
@@ -123,6 +124,10 @@ export function PaymentDataTable({
         });
         return <div className="capitalize">{formmater.format(amount)}</div>;
       },
+    },
+    {
+      accessorKey: "currency",
+      header: "Currency",
     },
 
     {
