@@ -24,19 +24,12 @@ interface Item {
   unitPrice: number;
   total: number;
 }
-
-interface Tax {
-  rate: number;
-  amount: number;
-}
-
 interface ProformaInvoiceData {
   client: string;
   bol: string;
   items: Item[];
-  estimatedSubtotal: number;
-  tax: Tax;
-  estimatedTotal: number;
+  tax: number;
+  discount: number;
   issueDate: string;
   expiryDate: string;
   shippingTerms: string;
@@ -55,9 +48,8 @@ export default function ProformaInvoiceForm({
     client: "",
     bol: "",
     items: [{ description: "", quantity: 1, unitPrice: 0, total: 0 }],
-    estimatedSubtotal: 0,
-    tax: { rate: 0, amount: 0 },
-    estimatedTotal: 0,
+    tax: 0,
+    discount: 0,
     issueDate: "",
     expiryDate: "",
     shippingTerms: "",
@@ -65,26 +57,6 @@ export default function ProformaInvoiceForm({
     notes: "",
   });
   const [isPending, startTransition] = useTransition();
-
-  const calculateTotals = (items: Item[], taxRate: number) => {
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const taxAmount = subtotal * (taxRate / 100);
-    const total = subtotal + taxAmount;
-    return { subtotal, taxAmount, total };
-  };
-
-  useEffect(() => {
-    const { subtotal, taxAmount, total } = calculateTotals(
-      formData.items,
-      formData.tax.rate
-    );
-    setFormData((prev) => ({
-      ...prev,
-      estimatedSubtotal: subtotal,
-      tax: { ...prev.tax, amount: taxAmount },
-      estimatedTotal: total,
-    }));
-  }, [formData.items, formData.tax.rate]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -203,97 +175,14 @@ export default function ProformaInvoiceForm({
             </Select>
           </div>
         </div>
-        {/* Customer Details
-        <fieldset className="space-y-4 border p-4 rounded-md">
-          <legend className="text-lg font-semibold text-gray-900">
-            Customer Details
-          </legend>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="customer.name">Name</Label>
-              <Input
-                id="customer.name"
-                name="customer.name"
-                value={formData.customer.name}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Jane Smith"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customer.email">Email</Label>
-              <Input
-                id="customer.email"
-                name="customer.email"
-                type="email"
-                value={formData.customer.email}
-                onChange={handleChange}
-                required
-                placeholder="e.g., jane@example.com"
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="customer.address.street">Street Address</Label>
-            <Input
-              id="customer.address.street"
-              name="customer.address.street"
-              value={formData.customer.address.street}
-              onChange={handleChange}
-              placeholder="e.g., 456 Trade Ave"
-            />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="customer.address.city">City</Label>
-              <Input
-                id="customer.address.city"
-                name="customer.address.city"
-                value={formData.customer.address.city}
-                onChange={handleChange}
-                placeholder="e.g., Export City"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customer.address.state">State</Label>
-              <Input
-                id="customer.address.state"
-                name="customer.address.state"
-                value={formData.customer.address.state}
-                onChange={handleChange}
-                placeholder="e.g., ON"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customer.address.postalCode">Postal Code</Label>
-              <Input
-                id="customer.address.postalCode"
-                name="customer.address.postalCode"
-                value={formData.customer.address.postalCode}
-                onChange={handleChange}
-                placeholder="e.g., A1B 2C3"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="customer.address.country">Country</Label>
-              <Input
-                id="customer.address.country"
-                name="customer.address.country"
-                value={formData.customer.address.country}
-                onChange={handleChange}
-                placeholder="e.g., Canada"
-              />
-            </div>
-          </div>
-        </fieldset> */}
-        {/* Items */}
+
         <fieldset className="space-y-4 border p-4 rounded-md">
           <legend className="text-sm font-semibold text-gray-900">Items</legend>
           <div className="space-y-4">
             {formData.items.map((item, index) => (
               <div
                 key={index}
-                className="grid grid-cols-1 md:grid-cols-4 gap-4"
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
               >
                 <div className="space-y-2">
                   <Label htmlFor={`itemDescription${index}`}>Description</Label>
@@ -339,23 +228,6 @@ export default function ProformaInvoiceForm({
                     className="rounded border border-gray-300"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`itemTotal${index}`}>Total</Label>
-                  <Input
-                    id={`itemTotal${index}`}
-                    type="number"
-                    value={item.total}
-                    readOnly
-                    onChange={(e) =>
-                      handleItemChange(index, "total", e.target.value)
-                    }
-                    required
-                    min="0"
-                    step="0.01"
-                    placeholder="1500.00"
-                    className="rounded border border-gray-300"
-                  />
-                </div>
               </div>
             ))}
           </div>
@@ -368,17 +240,16 @@ export default function ProformaInvoiceForm({
           </Button>
         </fieldset>
         {/* Financials */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="estimatedSubtotal">Estimated Subtotal</Label>
+            <Label htmlFor="discount">Discount rate (%)</Label>
             <Input
-              id="estimatedSubtotal"
-              name="estimatedSubtotal"
+              id="discount"
+              name="discount"
               type="number"
-              value={formData.estimatedSubtotal}
+              value={formData.discount}
               onChange={handleChange}
               required
-              readOnly
               min="0"
               step="0.01"
               placeholder="1500.00"
@@ -388,10 +259,10 @@ export default function ProformaInvoiceForm({
           <div className="space-y-2">
             <Label htmlFor="tax.rate">Tax Rate (%)</Label>
             <Input
-              id="tax.rate"
-              name="tax.rate"
+              id="tax"
+              name="tax"
               type="number"
-              value={formData.tax.rate}
+              value={formData.tax}
               onChange={handleChange}
               min="0"
               step="0.01"
@@ -399,37 +270,6 @@ export default function ProformaInvoiceForm({
               className="rounded border border-gray-300"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="tax.amount">Tax Amount</Label>
-            <Input
-              id="tax.amount"
-              name="tax.amount"
-              type="number"
-              value={formData.tax.amount}
-              onChange={handleChange}
-              min="0"
-              step="0.01"
-              readOnly
-              placeholder="195.00"
-              className="rounded border border-gray-300"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="estimatedTotal">Estimated Total</Label>
-          <Input
-            id="estimatedTotal"
-            name="estimatedTotal"
-            type="number"
-            value={formData.estimatedTotal}
-            onChange={handleChange}
-            required
-            readOnly
-            min="0"
-            step="0.01"
-            placeholder="1695.00"
-            className="rounded border border-gray-300"
-          />
         </div>
         {/* Dates and Terms */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

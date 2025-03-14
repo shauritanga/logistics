@@ -21,7 +21,8 @@ import { ActionResponse, Quotation } from "@/types";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./Invoice";
 import { IProformaInvoice } from "@/models/ProformaInvoice";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
+import { createInvoice } from "@/actions/invoice";
 
 export default function ProformaTable({
   proformaInvoices,
@@ -59,15 +60,33 @@ export default function ProformaTable({
   };
 
   // Handle export to invoice
-  const handleExportToInvoice = (proforma: IProformaInvoice) => {
-    enqueueSnackbar(
-      `Exporting proforma ${proforma.proformaNumber} to invoice`,
-      {
+  const handleExportToInvoice = async (proforma: IProformaInvoice) => {
+    console.log({ proforma });
+    const invoiceData = {
+      client: proforma.client._id.toString(),
+      items: proforma.items,
+      tax: {
+        rate: proforma.tax?.rate,
+      },
+      discount: {
+        rate: proforma.discount?.rate,
+      },
+      dueDate: addDays(new Date(), 30),
+      paymentTerms: "Net 30",
+      notes: proforma.notes?.toString() || "",
+    };
+
+    console.log({ invoiceData });
+    try {
+      const result = await createInvoice(null, invoiceData, true);
+      enqueueSnackbar(`Exporting proforma ${result.message}`, {
         variant: "info",
-      }
-    );
-    // Implement the logic to export proforma to invoice
-    // Example: call an API to create an invoice from the proforma
+      });
+    } catch (error: any) {
+      enqueueSnackbar(error.message, {
+        variant: "info",
+      });
+    }
   };
 
   return (
@@ -101,7 +120,7 @@ export default function ProformaTable({
                 className="hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <TableCell className="font-medium">
-                  {proforma.formattedProformaNumber}
+                  {proforma.proformaNumber}
                 </TableCell>
                 <TableCell>{proforma.client.name}</TableCell>
                 <TableCell>

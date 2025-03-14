@@ -22,7 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Client } from "../../clients/components/ClientTable";
 import { ActionResponse } from "@/types";
-import { createInvoice } from "@/actions/invoice";
+import { createInvoice, DataSource } from "@/actions/invoice";
 
 interface Item {
   description: string;
@@ -57,7 +57,8 @@ export function InvoiceForm({ clients }: InvoiceCreateDialogProps) {
 
   const initialState: ActionResponse = { success: false, message: "" };
   const [state, action, isPending] = React.useActionState(
-    createInvoice,
+    (state: ActionResponse, payload: DataSource) =>
+      createInvoice(state, payload, false),
     initialState
   );
 

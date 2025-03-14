@@ -120,21 +120,6 @@ export default function InvoiceTable({ invoices }: { invoices: Invoice[] }) {
                       className="bg-white dark:bg-gray-800"
                     >
                       <DropdownMenuItem
-                        onClick={() => handleDownload(invoice)}
-                        className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        {/* <PDFDownloadLink
-                          document={<InvoicePDF invoice={invoice} />}
-                          fileName={`invoice-${proforma.proformaNumber}.pdf`}
-                        >
-                          {({ loading }: { loading: boolean }) =>
-                            loading ? "Generating..." : "Download"
-                          }
-                        </PDFDownloadLink> */}
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
                         onClick={() => handleEdit(invoice)}
                         className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
                       >

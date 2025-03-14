@@ -1,12 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
-import * as AutoIncrement from "mongoose-sequence"; // Correct import
-
-const AutoInc = (AutoIncrement as any)(mongoose); // Initialize with mongoose instance
 
 // Define the Proforma Invoice Interface
 export interface IProformaInvoice extends Document {
   _id: mongoose.Types.ObjectId;
-  proformaNumber: String;
+  proformaNumber: string;
   client: mongoose.Types.ObjectId;
   bol: mongoose.Types.ObjectId;
   items: {
@@ -17,6 +14,10 @@ export interface IProformaInvoice extends Document {
   }[];
   estimatedSubtotal: number;
   tax: {
+    rate: number;
+    amount: number;
+  };
+  discount: {
     rate: number;
     amount: number;
   };
@@ -33,8 +34,7 @@ export interface IProformaInvoice extends Document {
 const proformaInvoiceSchema = new Schema<IProformaInvoice>(
   {
     proformaNumber: {
-      type: Number,
-      unique: true,
+      type: String,
     },
     client: { type: Schema.Types.ObjectId, ref: "Client", required: true },
     bol: { type: Schema.Types.ObjectId, ref: "BillOfLanding", required: true }, // Fixed typo
@@ -56,27 +56,43 @@ const proformaInvoiceSchema = new Schema<IProformaInvoice>(
         },
         total: {
           type: Number,
-          required: true,
         },
       },
     ],
-    estimatedSubtotal: {
-      type: Number,
-      required: true,
-    },
+
     tax: {
       rate: {
         type: Number,
         default: 0,
+        min: [0, "Tax rate cannot be negative"],
+        max: [100, "Tax rate cannot exceed 100%"],
       },
       amount: {
         type: Number,
         default: 0,
+        min: [0, "Tax amount cannot be negative"],
       },
+    },
+    discount: {
+      rate: {
+        type: Number,
+        min: [0, "Discount rate cannot be negative"],
+        max: [100, "Discount rate cannot exceed 100%"],
+        default: 0,
+      },
+      amount: {
+        type: Number,
+        min: [0, "Discount amount cannot be negative"],
+        default: 0,
+      },
+    },
+    estimatedSubtotal: {
+      type: Number,
+      min: [0, "Subtotal cannot be negative"],
     },
     estimatedTotal: {
       type: Number,
-      required: true,
+      min: [0, "Total cannot be negative"],
     },
     issueDate: {
       type: Date,
@@ -105,38 +121,82 @@ const proformaInvoiceSchema = new Schema<IProformaInvoice>(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
-// Auto-increment proformaNumber instead of _id
-proformaInvoiceSchema.plugin(AutoInc, {
-  id: "proformaInvoice_seq",
-  inc_field: "proformaNumber", // Use proformaNumber for incrementing
-  start_seq: 1,
-  transform: (num: number) => `PROF${String(num).padStart(4, "0")}`,
+// Generate invoice number
+async function generateProformaNumber(): Promise<string> {
+  const date = new Date();
+  const dateString = date.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+
+  // Find the last invoice for today to get the sequence
+  const lastInvoice = await mongoose.models.ProformaInvoice.findOne({
+    proformaNumber: { $regex: `^PRO-${dateString}` },
+  }).sort({ proformaNumber: -1 });
+
+  let sequence = 1;
+  if (lastInvoice) {
+    const lastSequence = parseInt(lastInvoice.proformaNumber.slice(-4));
+    sequence = lastSequence + 1;
+  }
+
+  const sequenceString = sequence.toString().padStart(4, "0");
+  return `PRO-${dateString}-${sequenceString}`;
+}
+
+proformaInvoiceSchema.pre("save", async function (next) {
+  if (this.isNew && !this.proformaNumber) {
+    this.proformaNumber = await generateProformaNumber();
+  }
+
+  if (this.isModified("items")) {
+    this.items.forEach((item) => {
+      item.total = item.quantity * item.unitPrice;
+    });
+    this.estimatedSubtotal = this.items.reduce(
+      (sum, item) => sum + item.total,
+      0
+    );
+  }
+
+  if (this.isModified("tax.rate") || this.isModified("estimatedSubtotal")) {
+    this.tax.amount = Number(
+      ((this.tax.rate / 100) * this.estimatedSubtotal).toFixed(2)
+    );
+  }
+
+  if (
+    this.isModified("discount.rate") ||
+    this.isModified("estimatedSubtotal")
+  ) {
+    this.discount.amount = Number(
+      ((this.estimatedSubtotal * this.discount.rate) / 100).toFixed(2)
+    );
+  }
+
+  if (
+    this.isModified("estimatedSubtotal") ||
+    this.isModified("tax.amount") ||
+    this.isModified("discount.amount")
+  ) {
+    this.estimatedTotal = Number(
+      (
+        this.estimatedSubtotal +
+        this.tax.amount -
+        (this.discount.amount || 0)
+      ).toFixed(2)
+    );
+  }
+
+  next();
 });
 
-proformaInvoiceSchema.virtual("formattedProformaNumber").get(function () {
-  return `PROF${String(this.proformaNumber).padStart(4, "0")}`;
-});
+proformaInvoiceSchema.index({ proformaNumber: 1 }, { unique: true });
+proformaInvoiceSchema.index({ client: 1 });
+proformaInvoiceSchema.index({ bol: 1 });
 
-// Pre-save hook to calculate totals (optional improvement)
-// proformaInvoiceSchema.pre("save", function (next) {
-//   this.items.forEach((item) => {
-//     item.total = item.quantity * item.unitPrice;
-//   });
-//   this.estimatedSubtotal = this.items.reduce(
-//     (sum, item) => sum + item.total,
-//     0
-//   );
-//   this.tax.amount = (this.tax.rate / 100) * this.estimatedSubtotal;
-//   this.estimatedTotal = this.estimatedSubtotal + this.tax.amount;
-//   next();
-// });
-
-// Enable virtuals when converting to JSON or objects (optional but recommended)
-proformaInvoiceSchema.set("toJSON", { virtuals: true });
-proformaInvoiceSchema.set("toObject", { virtuals: true });
 // Create the Proforma Invoice model
 export default mongoose.models?.ProformaInvoice ||
   mongoose.model<IProformaInvoice>("ProformaInvoice", proformaInvoiceSchema);

@@ -111,7 +111,6 @@ const invoiceSchema = new Schema<IInvoice>(
     },
     totalAmount: {
       type: Number,
-      // required: [true, "Total amount is required"],
       min: [0, "Total cannot be negative"],
     },
     issueDate: {
@@ -192,10 +191,6 @@ async function generateInvoiceNumber(): Promise<string> {
 
 // Pre-save middleware with invoice number generation
 invoiceSchema.pre("save", async function (next) {
-  console.log("Pre-save triggered for:", this._id);
-  console.log("Is new document?", this.isNew);
-  console.log("Input data:", JSON.stringify(this.toObject(), null, 2));
-  console.log("++++++++++++++++++++++++++++++++++++++++++++++");
   if (this.isNew && !this.invoiceNumber) {
     this.invoiceNumber = await generateInvoiceNumber();
   }

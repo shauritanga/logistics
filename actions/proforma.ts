@@ -3,9 +3,17 @@ import dbConnect from "@/lib/mongodb";
 import ProformaInvoice, { IProformaInvoice } from "@/models/ProformaInvoice";
 
 export async function createProformaInvoice(formData: any) {
+  const { tax, discount } = formData;
+
+  const proformaData = {
+    ...formData,
+    tax: { rate: Number(tax) },
+    discount: { rate: Number(discount) },
+  };
+  console.log({ proformaData });
   try {
     await dbConnect();
-    const proforma = new ProformaInvoice(formData);
+    const proforma = new ProformaInvoice(proformaData);
     await proforma.save();
   } catch (error) {
     console.log(error);
@@ -21,7 +29,6 @@ export async function getProformaInvoices(): Promise<
       "client",
       { path: "bol", populate: ["consignee", "notifyParty", "shipper"] },
     ]);
-    console.log({ proformInvoices });
     return JSON.parse(JSON.stringify(proformInvoices));
   } catch (error) {
     console.log(error);
