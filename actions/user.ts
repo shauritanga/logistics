@@ -1,13 +1,12 @@
 "use server";
 
 import { auth } from "@/auth";
-import User from "@/models/User";
+import { User } from "@/models/index";
 import checkPermission from "@/lib/checkPermission";
 import dbConnect from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 import { ActionResponse } from "@/types";
 import { revalidatePath } from "next/cache";
-import { enqueueSnackbar } from "notistack";
 
 export async function createEmployee(
   _: ActionResponse | null,

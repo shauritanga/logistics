@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 
 export default async function Page() {
   const bols = await getAllBilOfLanding();
-  console.log({ bols });
 
   const todayCount = bols.filter((bol) => isToday(bol.createdAt)).length;
 

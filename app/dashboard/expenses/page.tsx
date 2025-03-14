@@ -5,7 +5,6 @@ import { readClients } from "@/actions/Client";
 export default async function Page() {
   const expenses = await readTransactionsByCategory("expenses");
 
-  console.log({ expenses });
   const clients = await readClients();
   return (
     <div className="dark:text-white">

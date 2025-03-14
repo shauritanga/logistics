@@ -1,9 +1,8 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
-import BillOfLanding from "@/models/BillOfLanding";
-import Invoice from "@/models/Invoice";
-import Transaction from "@/models/Transaction";
+import { BillOfLanding } from "@/models/index";
+import { Invoice, Transaction } from "@/models/index";
 
 export async function getTotalBillOfLanding() {
   try {

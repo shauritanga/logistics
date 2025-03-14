@@ -123,12 +123,12 @@ export default function Sidebar() {
                   <NavItem href="/dashboard/manage-bols" icon={Receipt}>
                     Manage Files
                   </NavItem>
-                  <NavItem href="/dashboard/manage-cargo" icon={CreditCard}>
+                  {/* <NavItem href="/dashboard/manage-cargo" icon={CreditCard}>
                     Manage Cargo
-                  </NavItem>
-                  <NavItem href="/dashboard/cargo-position" icon={CreditCard}>
+                  </NavItem> */}
+                  {/* <NavItem href="/dashboard/cargo-position" icon={CreditCard}>
                     Cargo Position
-                  </NavItem>
+                  </NavItem> */}
                 </div>
               </div>
 

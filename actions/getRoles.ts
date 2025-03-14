@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
-import Role from "@/models/Role";
+import { Role } from "@/models/index";
 
 export default async function getRoles() {
   await dbConnect();

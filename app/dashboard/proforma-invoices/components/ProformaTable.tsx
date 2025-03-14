@@ -20,7 +20,7 @@ import { deleteQuotation } from "@/actions/quotation";
 import { ActionResponse, Quotation } from "@/types";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./Invoice";
-import { IProformaInvoice } from "@/models/ProformaInvoice";
+import { IProformaInvoice } from "@/models/index";
 import { addDays, format } from "date-fns";
 import { createInvoice } from "@/actions/invoice";
 

@@ -1,7 +1,8 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
-import BillOfLanding, { IBillOfLanding } from "@/models/BillOfLanding";
+import { BillOfLanding, IBillOfLanding } from "@/models/index";
+import { BillOfLandingResponse } from "@/types";
 import { z } from "zod";
 
 const billOfLandingSchema = z.object({
@@ -68,7 +69,7 @@ export async function createBillOfLading(
 
     const bolData = {
       bolNumber,
-      countryLastConsigment: countryLastConsignment,
+      countryLastConsignment,
       countryOfExeport,
       entryOffice,
       containers: containers.map((container: any) => ({
@@ -146,4 +147,26 @@ export async function getAllBilOfLanding(): Promise<IBillOfLanding[] | []> {
     return JSON.parse(JSON.stringify(BilOfLandings, null, 2));
   } catch (error) {}
   return [];
+}
+
+export async function getBillOfLandingById(
+  id: string
+): Promise<BillOfLandingResponse | null> {
+  try {
+    await dbConnect();
+    const billOfLanding = await BillOfLanding.findById(id).populate([
+      "shipper",
+      "consignee",
+      "notifyParty",
+    ]);
+
+    if (!billOfLanding) {
+      return null;
+    }
+
+    return JSON.parse(JSON.stringify(billOfLanding));
+  } catch (error) {
+    console.error("Error fetching Bill of Landing:", error);
+    return null;
+  }
 }

@@ -236,12 +236,12 @@ const Reports = () => {
           onOpenChange={setIsNewReportDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="bg-[#f38633] text-white hover:bg-[#bb6727] hover:text-white rounded">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Plus className="mr-2 h-4 w-4" />
               New Report
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[525px] bg-white rounded">
+          <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
               <DialogTitle>Create New Report</DialogTitle>
               <DialogDescription>
@@ -300,7 +300,7 @@ const Reports = () => {
               </Button>
               <Button
                 onClick={handleNewReportSubmit}
-                className="bg-[#f38633] text-white hover:bg-[#bb6727] hover:text-white rounded"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Submit
               </Button>
@@ -402,10 +402,10 @@ const Reports = () => {
                       <div
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           report.status === "completed"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
                             : report.status === "in-review"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
+                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
                         }`}
                       >
                         {report.status === "in-review"
@@ -421,6 +421,7 @@ const Reports = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEditReport(report)}
+                            className="hover:bg-muted"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -428,6 +429,7 @@ const Reports = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDeleteReport(report.id)}
+                            className="hover:bg-destructive/90 hover:text-destructive-foreground"
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -451,7 +453,7 @@ const Reports = () => {
         open={isEditReportDialogOpen}
         onOpenChange={setIsEditReportDialogOpen}
       >
-        <DialogContent className="sm:max-w-[525px]  bg-white rounded">
+        <DialogContent className="sm:max-w-[525px]">
           <DialogHeader>
             <DialogTitle>Edit Report</DialogTitle>
             <DialogDescription>Make changes to your report.</DialogDescription>
@@ -501,10 +503,16 @@ const Reports = () => {
             <Button
               variant="outline"
               onClick={() => setIsEditReportDialogOpen(false)}
+              className="hover:bg-muted"
             >
               Cancel
             </Button>
-            <Button onClick={handleUpdateReport}>Save Changes</Button>
+            <Button
+              onClick={handleUpdateReport}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              Save Changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

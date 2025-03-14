@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 
-import User from "./models/User";
+import { User } from "./models/index";
 import dbConnect from "./lib/mongodb";
 
 declare module "next-auth" {

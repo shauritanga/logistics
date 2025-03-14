@@ -308,20 +308,22 @@ export default function DocumentsPage() {
   );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-4">
-          <h1 className="text-2xl font-bold dark:text-white">Documents</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Documents
+          </h1>
           <div className="flex items-center gap-2">
             {currentPath.length > 1 && (
               <button
                 onClick={handleNavigateBack}
-                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors duration-200"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
             )}
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-gray-600 dark:text-gray-300 font-medium">
               {currentPath.join(" / ")}
             </span>
           </div>
@@ -338,38 +340,38 @@ export default function DocumentsPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className={`px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 ${
+            className={`px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 active:bg-blue-800 flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow ${
               isUploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {isUploading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Uploading...
+                <span className="font-medium">Uploading...</span>
               </>
             ) : (
               <>
                 <Upload className="w-4 h-4" />
-                Upload Files
+                <span className="font-medium">Upload Files</span>
               </>
             )}
           </button>
           <button
             onClick={handleCreateFolder}
             disabled={isUploading}
-            className={`px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-2 ${
+            className={`px-4 py-2.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 active:bg-gray-100 dark:active:bg-gray-500 flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow border border-gray-200 dark:border-gray-600 ${
               isUploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <Folder className="w-4 h-4" />
-            New Folder
+            <span className="font-medium">New Folder</span>
           </button>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="p-4 border-b dark:border-gray-700">
-          <div className="grid grid-cols-4 gap-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className="grid grid-cols-4 gap-4 text-sm font-semibold text-gray-600 dark:text-gray-300">
             <div>Name</div>
             <div>Type</div>
             <div>Size</div>
@@ -381,39 +383,44 @@ export default function DocumentsPage() {
           {filteredFiles.map((file) => (
             <div
               key={file.id}
-              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors duration-150"
               onClick={() => file.type === "folder" && handleFolderClick(file)}
             >
               <div className="grid grid-cols-4 gap-4 items-center">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {file.type === "folder" ? (
-                    <Folder className="w-5 h-5 text-blue-500" />
+                    <Folder className="w-5 h-5 text-blue-500 dark:text-blue-400" />
                   ) : (
-                    <File className="w-5 h-5 text-gray-500" />
+                    <File className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                   )}
-                  <span className="dark:text-white">{file.name}</span>
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {file.name}
+                  </span>
                 </div>
-                <div className="dark:text-white capitalize">{file.type}</div>
-                <div className="dark:text-white">{renderFileSize(file)}</div>
+                <div className="text-gray-700 dark:text-gray-300 capitalize">
+                  {file.type}
+                </div>
+                <div className="text-gray-700 dark:text-gray-300">
+                  {renderFileSize(file)}
+                </div>
                 <div className="flex items-center justify-between">
-                  <span className="dark:text-white">
+                  <span className="text-gray-600 dark:text-gray-400">
                     {formatDate(file.lastModified)}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     {file.type === "file" && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDownload(file);
-                          //window.location.href = file.url ?? "";
                         }}
-                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-colors duration-150"
                         disabled={isDownloading === file.id}
                       >
                         {isDownloading === file.id ? (
-                          <Loader2 className="w-4 h-4 text-gray-500 animate-spin" />
+                          <Loader2 className="w-4 h-4 text-gray-500 dark:text-gray-400 animate-spin" />
                         ) : (
-                          <Download className="w-4 h-4 text-gray-500" />
+                          <Download className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-150" />
                         )}
                       </button>
                     )}
@@ -422,33 +429,38 @@ export default function DocumentsPage() {
                         e.stopPropagation();
                         handleShare(file);
                       }}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-colors duration-150"
                     >
-                      <Share2 className="w-4 h-4 text-gray-500" />
+                      <Share2 className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-150" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(file.id);
                       }}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-colors duration-150"
                     >
-                      <Trash2 className="w-4 h-4 text-gray-500" />
+                      <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors duration-150" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRename(file);
                       }}
-                      className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-colors duration-150"
                     >
-                      <Edit2 className="w-4 h-4 text-gray-500" />
+                      <Edit2 className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-150" />
                     </button>
                   </div>
                 </div>
               </div>
             </div>
           ))}
+          {filteredFiles.length === 0 && (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              No files or folders in this directory
+            </div>
+          )}
         </div>
       </div>
     </div>

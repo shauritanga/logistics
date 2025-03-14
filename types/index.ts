@@ -111,3 +111,66 @@ export type Invoice = {
   paymentTerms: string;
   notes: string;
 };
+
+export interface BillOfLandingResponse extends Document {
+  _id: string;
+  bolNumber: string;
+  countryLastConsignment: string;
+  countryOfExeport: string;
+  entryOffice: string;
+  containers: {
+    containerNumber: string;
+    tareWeight: number;
+    grossWeight: number;
+  }[];
+  goods: {
+    description: string;
+    quantity: number;
+    weight: number;
+    value?: number;
+    containerReference?: string;
+  }[];
+  freightCharges: {
+    amount: number;
+    currency: string;
+  };
+  insurance: {
+    amount: number;
+    currency: string;
+  };
+  term: {
+    code?: string;
+    place?: string;
+  };
+  tansad: {
+    number?: string;
+    date?: Date;
+  };
+  portOfLoading: string;
+  portOfDischarge: string;
+  deliveryPlace?: string;
+  arrivalDate?: Date;
+  releasedDate?: string;
+  shipper: Client;
+  notifyParty: Client;
+  consignee: Client;
+  shippingLine?: string;
+  shippingOrder?: string;
+  tradingCountry?: string;
+  vessleName?: string;
+  packingList: {
+    totalPackages?: number;
+    totalNetWeight?: number;
+    totalGrossWeight?: number;
+    totalVolume?: number;
+    file?: any;
+  };
+  portInvoice: {
+    invoiceNumber?: string;
+    amount?: number;
+    currency?: string;
+    date?: Date;
+    file?: any;
+  };
+  createdAt: Date;
+}

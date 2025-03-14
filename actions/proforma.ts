@@ -1,6 +1,6 @@
 "use server";
 import dbConnect from "@/lib/mongodb";
-import ProformaInvoice, { IProformaInvoice } from "@/models/ProformaInvoice";
+import { ProformaInvoice, IProformaInvoice } from "@/models/index";
 
 export async function createProformaInvoice(formData: any) {
   const { tax, discount } = formData;

@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Client } from "../../clients/components/ClientTable";
-import { IBillOfLanding } from "@/models/BillOfLanding";
+import { IBillOfLanding } from "@/models/index";
 import { createProformaInvoice } from "@/actions/proforma";
 import { enqueueSnackbar } from "notistack";
 

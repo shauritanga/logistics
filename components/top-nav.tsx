@@ -11,9 +11,9 @@ import { Bell, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import Profile01 from "./profile-01";
-import { ThemeToggle } from "./toggle-theme";
 import { useEffect, useState } from "react";
 import { getPendingTransactionsCount } from "@/actions/transactions";
+import { ThemeToggle } from "./theme-toggle";
 
 interface BreadcrumbItem {
   label: string;

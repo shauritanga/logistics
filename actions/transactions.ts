@@ -1,12 +1,11 @@
 "use server";
 
 import { auth } from "@/auth";
-import User from "@/models/User";
+import { User, Transaction } from "@/models/index";
 import checkPermission from "@/lib/checkPermission";
 import dbConnect from "@/lib/mongodb";
 import { ActionResponse } from "@/types";
 import { revalidatePath } from "next/cache";
-import Transaction from "@/models/Transaction";
 
 export async function createTransaction(
   _: ActionResponse | null,

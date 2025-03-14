@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
-import Invoice from "@/models/Invoice";
+import { Invoice } from "@/models/index";
 import { ActionResponse } from "@/types";
 import { revalidatePath } from "next/cache";
 
@@ -95,5 +95,8 @@ export async function getAllInvoices() {
     const invoices = await Invoice.find().populate("client");
 
     return JSON.parse(JSON.stringify(invoices));
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    return [];
+  }
 }

@@ -146,14 +146,20 @@ export default function RecentBillOfLadingTable({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table className="text-black dark:text-white">
+      <div className="rounded-lg border bg-card">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow
+                key={headerGroup.id}
+                className="border-b border-border bg-muted/50"
+              >
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className="h-12 px-4 text-base font-semibold text-foreground"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -172,9 +178,13 @@ export default function RecentBillOfLadingTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="border-b border-border bg-card transition-colors hover:bg-accent/50 [&:last-child]:border-0"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className="p-4 text-sm text-foreground"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -187,9 +197,9 @@ export default function RecentBillOfLadingTable({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-muted-foreground"
                 >
-                  No results.
+                  No results found.
                 </TableCell>
               </TableRow>
             )}

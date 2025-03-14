@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, ArrowUpDown, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  MoreHorizontal,
+  ArrowUpDown,
+  Search,
+  Eye,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ResponseBill } from "@/types";
 import { format, parseISO } from "date-fns";
-import { IBillOfLanding } from "@/models/BillOfLanding";
+import { IBillOfLanding } from "@/models/index";
 
 const columns: ColumnDef<IBillOfLanding>[] = [
   {
@@ -123,6 +131,7 @@ const columns: ColumnDef<IBillOfLanding>[] = [
     id: "actions",
     cell: ({ row }) => {
       const billOfLading = row.original;
+      const router = useRouter();
 
       return (
         <DropdownMenu>
@@ -136,21 +145,28 @@ const columns: ColumnDef<IBillOfLanding>[] = [
             align="end"
             className="dark:bg-black dark:text-white"
           >
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => console.log("View", billOfLading._id)}
+              onClick={() =>
+                router.push(`/dashboard/manage-bols/${billOfLading._id}`)
+              }
+              className="flex items-center gap-2"
             >
-              View details
+              <Eye className="h-4 w-4" />
+              View
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => console.log("Edit", billOfLading._id)}
+              className="flex items-center gap-2"
             >
+              <Pencil className="h-4 w-4" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => console.log("Delete", billOfLading._id)}
+              className="flex items-center gap-2 text-red-600 focus:text-red-600"
             >
+              <Trash2 className="h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

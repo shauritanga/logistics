@@ -1,6 +1,6 @@
 "use server";
 
-import Role from "@/models/Role";
+import { Role } from "@/models/index";
 import dbConnect from "@/lib/mongodb";
 
 export default async function createRoles(role: any) {

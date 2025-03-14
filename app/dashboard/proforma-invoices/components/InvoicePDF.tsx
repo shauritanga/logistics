@@ -8,7 +8,7 @@ import {
   Font,
   Image,
 } from "@react-pdf/renderer";
-import { IProformaInvoice } from "@/models/ProformaInvoice";
+import { IProformaInvoice } from "@/models/index";
 
 // Register Helvetica font
 Font.register({

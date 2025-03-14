@@ -7,7 +7,6 @@ export default async function Payments() {
 
   const clients = await readClients();
 
-  console.log({ payments });
   return (
     <div className="dark:text-white">
       Payments

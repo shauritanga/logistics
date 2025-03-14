@@ -9,8 +9,6 @@ import { enqueueSnackbar } from "notistack";
 import { createBillOfLading } from "@/actions/bil";
 import { useRouter } from "next/navigation";
 
-// TypeScript interfaces remain unchanged
-// ... (keeping all interfaces as they were)
 interface Good {
   description: string;
   quantity: string;
@@ -270,35 +268,40 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
   return (
     <form
       action={submitAction}
-      className="max-w-7xl mx-auto p-6 space-y-8 bg-white rounded-lg shadow"
+      className="max-w-7xl mx-auto p-6 space-y-8 bg-white dark:bg-gray-900 rounded-lg shadow-lg dark:shadow-gray-800/30 transition-colors duration-200"
     >
-      <h2 className="text-2xl font-bold text-gray-800">Bill of Lading</h2>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+        Bill of Lading
+      </h2>
 
       {/* Basic Information */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">
+      <section className="space-y-4 rounded-lg border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f38633]"></span>
           Basic Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <Label>BOL Number</Label>
+          <div className="space-y-2">
+            <Label className="text-gray-700 dark:text-gray-300">
+              BOL Number
+            </Label>
             <Input
               name="bolNumber"
               value={formData.bolNumber}
               onChange={handleInputChange}
               placeholder="Enter BOL number"
               required
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
           </div>
-          <div>
-            <Label>Shipper</Label>
+          <div className="space-y-2">
+            <Label className="text-gray-700 dark:text-gray-300">Shipper</Label>
             <select
               name="shipper"
               value={formData.shipper}
               onChange={handleInputChange}
               required
-              className="w-full p-2 border rounded"
+              className="w-full p-2 rounded-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             >
               <option value="">Select shipper</option>
               {clients?.map((client) => (
@@ -345,8 +348,9 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
       </section>
 
       {/* Shipping Details */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">
+      <section className="space-y-4 rounded-lg border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f38633]"></span>
           Shipping Details
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -454,8 +458,9 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
       </section>
 
       {/* Terms and TANSAD */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">
+      <section className="space-y-4 rounded-lg border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f38633]"></span>
           Terms & Documentation
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -496,12 +501,15 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
       </section>
 
       {/* Goods */}
-      <section className="space-y-4 bg-gray-50 p-4 rounded">
-        <h3 className="text-lg font-semibold text-gray-700">Goods</h3>
+      <section className="space-y-4 rounded-lg border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f38633]"></span>
+          Goods
+        </h3>
         {formData.goods.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4"
+            className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
           >
             <Input
               placeholder="Description"
@@ -510,6 +518,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
                 handleArrayChange(e, "goods", index, "description")
               }
               required
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               type="number"
@@ -517,6 +526,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               value={item.quantity}
               onChange={(e) => handleArrayChange(e, "goods", index, "quantity")}
               required
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               type="number"
@@ -524,12 +534,14 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               value={item.weight}
               onChange={(e) => handleArrayChange(e, "goods", index, "weight")}
               required
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               type="number"
               placeholder="Value"
               value={item.value}
               onChange={(e) => handleArrayChange(e, "goods", index, "value")}
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               placeholder="Container Ref"
@@ -537,6 +549,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               onChange={(e) =>
                 handleArrayChange(e, "goods", index, "containerReference")
               }
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
           </div>
         ))}
@@ -544,18 +557,22 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
           type="button"
           onClick={() => addItem("goods")}
           variant="outline"
+          className="border-[#f38633] text-[#f38633] hover:bg-[#f38633] hover:text-white transition-colors duration-200"
         >
           Add Good
         </Button>
       </section>
 
       {/* Containers */}
-      <section className="space-y-4 bg-gray-50 p-4 rounded">
-        <h3 className="text-lg font-semibold text-gray-700">Containers</h3>
+      <section className="space-y-4 rounded-lg border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f38633]"></span>
+          Containers
+        </h3>
         {formData.containers.map((container, index) => (
           <div
             key={index}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
           >
             <Input
               placeholder="Container Number"
@@ -564,6 +581,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
                 handleArrayChange(e, "containers", index, "containerNumber")
               }
               required
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               type="number"
@@ -573,6 +591,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
                 handleArrayChange(e, "containers", index, "tareWeight")
               }
               required
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               type="number"
@@ -582,6 +601,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
                 handleArrayChange(e, "containers", index, "grossWeight")
               }
               required
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
               placeholder="Seal Number"
@@ -589,6 +609,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               onChange={(e) =>
                 handleArrayChange(e, "containers", index, "sealNumber")
               }
+              className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
           </div>
         ))}
@@ -596,14 +617,16 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
           type="button"
           onClick={() => addItem("containers")}
           variant="outline"
+          className="border-[#f38633] text-[#f38633] hover:bg-[#f38633] hover:text-white transition-colors duration-200"
         >
           Add Container
         </Button>
       </section>
 
       {/* Financial Details */}
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">
+      <section className="space-y-4 rounded-lg border border-gray-100 dark:border-gray-800 p-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-200">
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f38633]"></span>
           Financial Details
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -648,118 +671,21 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
         </div>
       </section>
 
-      {/* Documents
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">Documents</h3>
-        <div className="space-y-6">
-          <div>
-            <Label>Packing List</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <Input
-                type="number"
-                placeholder="Total Packages"
-                value={formData.packingList.totalPackages}
-                onChange={(e) =>
-                  handleNestedChange(e, "packingList", "totalPackages")
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Net Weight"
-                value={formData.packingList.totalNetWeight}
-                onChange={(e) =>
-                  handleNestedChange(e, "packingList", "totalNetWeight")
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Gross Weight"
-                value={formData.packingList.totalGrossWeight}
-                onChange={(e) =>
-                  handleNestedChange(e, "packingList", "totalGrossWeight")
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Volume"
-                value={formData.packingList.totalVolume}
-                onChange={(e) =>
-                  handleNestedChange(e, "packingList", "totalVolume")
-                }
-              />
-              <div>
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) => handleFileChange(e, "packingList")}
-                />
-                {formData.packingList.file && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Uploaded: {formData.packingList.file.name}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-          <div>
-            <Label>Port Invoice</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <Input
-                placeholder="Invoice Number"
-                value={formData.portInvoice.invoiceNumber}
-                onChange={(e) =>
-                  handleNestedChange(e, "portInvoice", "invoiceNumber")
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Amount"
-                value={formData.portInvoice.amount}
-                onChange={(e) => handleNestedChange(e, "portInvoice", "amount")}
-                required
-              />
-              <Input
-                placeholder="Currency"
-                value={formData.portInvoice.currency}
-                onChange={(e) =>
-                  handleNestedChange(e, "portInvoice", "currency")
-                }
-              />
-              <Input
-                type="date"
-                value={formData.portInvoice.date}
-                onChange={(e) => handleNestedChange(e, "portInvoice", "date")}
-                required
-              />
-              <div>
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) => handleFileChange(e, "portInvoice")}
-                />
-                {formData.portInvoice.file && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Uploaded: {formData.portInvoice.file.name}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
       {/* Submit */}
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
         <Button
           type="submit"
           disabled={isPending}
-          className="bg-[#f38633] hover:bg-[#ab6832] text-white rounded"
+          className="bg-[#f38633] hover:bg-[#ab6832] text-white rounded-lg px-6 py-2.5 font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
         >
-          {isPending ? "Submitting..." : "Submit Bill of Lading"}
+          {isPending ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Submitting...</span>
+            </div>
+          ) : (
+            "Submit Bill of Lading"
+          )}
         </Button>
       </div>
     </form>

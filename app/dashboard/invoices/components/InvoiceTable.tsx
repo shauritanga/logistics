@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Download, Edit, Trash } from "lucide-react";
 import { deleteQuotation } from "@/actions/quotation";
 import { ActionResponse, Invoice, Quotation } from "@/types";
-import { IProformaInvoice } from "@/models/ProformaInvoice";
+import { IProformaInvoice } from "@/models/index";
 import { format } from "date-fns";
 
 export default function InvoiceTable({ invoices }: { invoices: Invoice[] }) {

@@ -1,12 +1,12 @@
 "use server";
 
 import { auth } from "@/auth";
-import User from "@/models/User";
+import { User } from "@/models/index";
 import checkPermission from "@/lib/checkPermission";
 import dbConnect from "@/lib/mongodb";
 import { ActionResponse } from "@/types";
 import { revalidatePath } from "next/cache";
-import Client from "@/models/Client";
+import { Client } from "@/models/index";
 
 export async function createClient(
   _: ActionResponse | null,
@@ -30,19 +30,7 @@ export async function createClient(
     const streetAddress = formData.get("streetAddress") as string;
     const phone = formData.get("phone") as string;
 
-    console.log({
-      name,
-      email,
-      district,
-      country,
-      region,
-      streetAddress,
-      phone,
-      tin,
-      vat,
-    });
-
-    const employee = new Client({
+    const client = new Client({
       name,
       email,
       district,
@@ -53,14 +41,15 @@ export async function createClient(
       vat,
       phone,
     });
-    await employee.save();
+    await client.save();
     revalidatePath("/dashboard/clients");
-    return { success: true, message: "Employee has been saved" };
+    return { success: true, message: "Client has been saved" };
   } catch (error: any) {
+    console.log(error.errorResponse);
     if (error.code === 11000) {
       return { success: false, message: "Email already exists" };
     }
-    return { success: false, message: "Employee creation failed" };
+    return { success: false, message: "Client creation failed" };
   }
 }
 

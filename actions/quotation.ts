@@ -1,7 +1,7 @@
 "use server";
 
 import dbConnect from "@/lib/mongodb";
-import Quotation from "@/models/Quotation";
+import { Quotation } from "@/models/index";
 import { ActionResponse } from "@/types";
 
 export async function createQuotation(

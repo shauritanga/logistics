@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useActionState } from "react";
+import { useState, useEffect, useActionState } from "react";
 import { createClient } from "@/actions/Client";
 import { ActionResponse } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { enqueueSnackbar } from "notistack";
 
 export default function AddClientForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,25 +32,47 @@ export default function AddClientForm() {
   const initialState: ActionResponse = { success: false, message: "" };
   const [state, action, isPending] = useActionState(createClient, initialState);
 
+  useEffect(() => {
+    if (state.success) {
+      setIsModalOpen(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        streetAddress: "",
+        district: "",
+        region: "",
+        country: "",
+        tin: "",
+        vat: "",
+      });
+      enqueueSnackbar(state.message, { variant: "success" });
+    }
+    if (state.errors) {
+      enqueueSnackbar(state.message, { variant: "error" });
+    }
+  }, [state.success]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const inputClassName =
-    "mt-1 p-2 w-full border border-gray-300 rounded shadow-sm";
-  const labelClassName = "block text-sm font-medium text-gray-700";
+    "mt-1 p-2 w-full border rounded shadow-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] dark:focus:border-[#f38633] placeholder:text-gray-400 dark:placeholder:text-gray-500";
+  const labelClassName =
+    "block text-sm font-medium text-gray-700 dark:text-gray-200";
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
-        <Button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-[#f38633] hover:bg-[#d4915e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f38633]">
+        <Button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-[#f38633] hover:bg-[#d4915e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f38633] dark:focus:ring-offset-gray-900">
           Add Client
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="p-4 sm:p-6 bg-white dark:bg-black rounded-lg max-w-[90vw] sm:max-w-3xl w-full">
+      <DialogContent className="p-4 sm:p-6 bg-white dark:bg-gray-900 rounded-lg max-w-[90vw] sm:max-w-3xl w-full border border-gray-200 dark:border-gray-800">
         <DialogHeader>
-          <DialogTitle className="text-lg sm:text-xl">
+          <DialogTitle className="text-lg sm:text-xl text-gray-900 dark:text-gray-100">
             Add New Client
           </DialogTitle>
         </DialogHeader>
@@ -59,7 +81,9 @@ export default function AddClientForm() {
           <form action={action} className="space-y-4 sm:space-y-6">
             {/* Basic Information */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-md font-medium text-gray-900">Basic Info</h3>
+              <h3 className="text-md font-medium text-gray-900 dark:text-gray-100">
+                Basic Info
+              </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="sm:col-span-2">
                   <Label htmlFor="name" className={labelClassName}>
@@ -107,7 +131,9 @@ export default function AddClientForm() {
 
             {/* Address Information */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-md font-medium text-gray-900">Address</h3>
+              <h3 className="text-md font-medium text-gray-900 dark:text-gray-100">
+                Address
+              </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="sm:col-span-2">
                   <Label htmlFor="streetAddress" className={labelClassName}>
@@ -169,7 +195,9 @@ export default function AddClientForm() {
 
             {/* Tax Information */}
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-md font-medium text-gray-900">Tax Info</h3>
+              <h3 className="text-md font-medium text-gray-900 dark:text-gray-100">
+                Tax Info
+              </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <Label htmlFor="tin" className={labelClassName}>
@@ -202,22 +230,10 @@ export default function AddClientForm() {
               </div>
             </div>
 
-            {/* Status and Submit */}
-            {state?.message && (
-              <div
-                className={`mt-3 sm:mt-4 p-2 rounded ${
-                  state.success
-                    ? "bg-green-100 text-green-500"
-                    : "bg-red-100 text-red-500"
-                }`}
-              >
-                <p className="text-sm italic">{state.message}</p>
-              </div>
-            )}
             <Button
               type="submit"
               disabled={isPending}
-              className="w-full mt-3 sm:mt-4 inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-[#f38633] hover:bg-[#d4915e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f38633]"
+              className="w-full mt-3 sm:mt-4 inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded shadow-sm text-white bg-[#f38633] hover:bg-[#d4915e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#f38633] dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? "Adding..." : "Add Client"}
             </Button>

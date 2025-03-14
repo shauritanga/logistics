@@ -2,7 +2,7 @@
 
 import { v2 as cloudinary } from "cloudinary"; // Assuming this is your existing db connection
 import { revalidatePath } from "next/cache";
-import File from "@/models/file";
+import { File } from "@/models/index";
 import dbConnect from "@/lib/mongodb";
 
 // Configure Cloudinary
@@ -149,92 +149,6 @@ export async function renameFile(id: string, newName: string) {
     return { error: "Failed to rename file" };
   }
 }
-
-// export async function getSignedDownloadUrl(
-//   cloudinaryId: string
-// ): Promise<{ url?: string; error?: string }> {
-//   try {
-//     if (!cloudinaryId) {
-//       return { error: "File ID not found" };
-//     }
-
-//     // Check Cloudinary configuration
-//     const config = cloudinary.config();
-//     if (!config.cloud_name || !config.api_key) {
-//       return {
-//         error: "Cloudinary configuration missing: cloud_name or api_key",
-//       };
-//     }
-
-//     const apiSecret = process.env.CLOUDINARY_API_SECRET;
-//     if (!apiSecret) {
-//       return { error: "Cloudinary API secret not configured" };
-//     }
-
-//     const publicId = cloudinaryId.replace(/^files\//, "");
-//     console.log("Generated publicId:", publicId);
-
-//     // Try different resource types in order
-//     const resourceTypes = ["raw", "image", "video"];
-//     let resourceInfo = null;
-//     let resourceType = "raw"; // Default to raw
-
-//     for (const type of resourceTypes) {
-//       try {
-//         resourceInfo = await cloudinary.api.resource(publicId, {
-//           resource_type: type,
-//         });
-//         if (resourceInfo) {
-//           resourceType = type;
-//           break;
-//         }
-//       } catch (error) {
-//         console.log(`Resource not found with type ${type}, trying next...`);
-//         continue;
-//       }
-//     }
-
-//     if (!resourceInfo) {
-//       return { error: `Resource not found for publicId: ${publicId}` };
-//     }
-
-//     const params = {
-//       public_id: publicId,
-//       resource_type: resourceType,
-//       type: "upload",
-//       timestamp: Math.round(new Date().getTime() / 1000),
-//     };
-
-//     const signature = cloudinary.utils.api_sign_request(params, apiSecret);
-
-//     const downloadUrl = cloudinary.url(publicId, {
-//       resource_type: resourceType,
-//       type: "upload",
-//       flags: "attachment",
-//       sign_url: true,
-//       timestamp: params.timestamp,
-//       signature: signature,
-//       secure: true,
-//     });
-
-//     console.log("Generated URL with resource_type:", resourceType);
-//     console.log("Final URL:", downloadUrl);
-//     return { url: downloadUrl };
-//   } catch (error: any) {
-//     console.error("Detailed error generating signed URL:", {
-//       message: error.message,
-//       name: error.name,
-//       status: error.http_code,
-//       details: error,
-//       cloudinaryId,
-//     });
-//     return {
-//       error: `Failed to generate download URL: ${
-//         error.message || "Unknown error"
-//       }`,
-//     };
-//   }
-// }
 
 export async function getSignedDownloadUrl(
   cloudinaryId: string

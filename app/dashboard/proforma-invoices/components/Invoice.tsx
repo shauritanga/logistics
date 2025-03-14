@@ -8,7 +8,6 @@ import {
   Font,
   Image,
 } from "@react-pdf/renderer";
-import { IProformaInvoice } from "@/models/ProformaInvoice";
 
 // Font Registration
 Font.register({
