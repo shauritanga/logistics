@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Add useEffect
 import { useActionState } from "react";
-import { updateClient } from "@/actions/Client"; // Assuming this action exists
+import { updateClient } from "@/actions/Client";
 import { ActionResponse } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +26,7 @@ export default function EditClientForm({
   onClose,
   client,
 }: EditClientFormProps) {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     name: client.name || "",
     email: client.email || "",
     phone: client.phone || "",
@@ -37,7 +36,14 @@ export default function EditClientForm({
     country: client.country || "",
     tin: client.tin || "",
     vat: client.vat || "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+
+  // Sync formData with client prop when it changes
+  useEffect(() => {
+    setFormData(initialFormData);
+  }, [client]); // Run when client prop changes
 
   const initialState: ActionResponse = { success: false, message: "" };
   const updateClientWrapper = async (
@@ -56,12 +62,17 @@ export default function EditClientForm({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleClose = () => {
+    setFormData(initialFormData); // Reset form data to initial values
+    onClose(); // Call the original onClose function
+  };
+
   const inputClassName =
     "mt-1 p-2 w-full border border-gray-300 rounded shadow-sm";
   const labelClassName = "block text-sm font-medium text-gray-700";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="p-4 sm:p-6 bg-white dark:bg-black rounded-lg max-w-[90vw] sm:max-w-3xl w-full">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">Edit Client</DialogTitle>
@@ -69,10 +80,8 @@ export default function EditClientForm({
 
         <div className="max-h-[70vh] overflow-y-auto pr-2 sm:pr-4">
           <form action={action} className="space-y-4 sm:space-y-6">
-            {/* Hidden ID field for update */}
             <input type="hidden" name="id" value={client._id} />
 
-            {/* Basic Information */}
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-md font-medium text-gray-900">Basic Info</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -120,7 +129,6 @@ export default function EditClientForm({
               </div>
             </div>
 
-            {/* Address Information */}
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-md font-medium text-gray-900">Address</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -182,7 +190,6 @@ export default function EditClientForm({
               </div>
             </div>
 
-            {/* Tax Information */}
             <div className="space-y-3 sm:space-y-4">
               <h3 className="text-md font-medium text-gray-900">Tax Info</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -217,7 +224,6 @@ export default function EditClientForm({
               </div>
             </div>
 
-            {/* Status and Submit */}
             {state?.message && (
               <div
                 className={`mt-3 sm:mt-4 p-2 rounded ${

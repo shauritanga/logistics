@@ -19,6 +19,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { deleteClient } from "@/actions/Client";
 import { enqueueSnackbar } from "notistack";
 import EditClientForm from "./EditForm";
+import { useRouter } from "next/navigation";
 
 export interface Client {
   _id: string;
@@ -36,6 +37,8 @@ export interface Client {
 const ClientsTable = ({ clients }: { clients: Client[] }) => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const router = useRouter();
 
   const handleEdit = (client: Client) => {
     setSelectedClient(client);
@@ -117,7 +120,9 @@ const ClientsTable = ({ clients }: { clients: Client[] }) => {
       {selectedClient && (
         <EditClientForm
           isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
+          onClose={() => {
+            setIsEditModalOpen(false);
+          }}
           client={selectedClient}
         />
       )}

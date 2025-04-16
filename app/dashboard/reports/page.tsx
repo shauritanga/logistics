@@ -62,6 +62,7 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { useSession } from "next-auth/react";
 
 interface Report {
   _id: string;
@@ -91,6 +92,7 @@ const Reports = () => {
     status: "draft",
   });
   const [loading, setLoading] = useState(false);
+  const data = useSession();
 
   useEffect(() => {
     fetchReports();
@@ -136,7 +138,7 @@ const Reports = () => {
       setLoading(true);
       await createReport({
         ...newReport,
-        employeeName: "Current User", // Replace with actual authenticated user
+        employeeName: data.data?.user.name ?? "",
       });
       setNewReport({ title: "", content: "", status: "draft" });
       setIsNewReportDialogOpen(false);
