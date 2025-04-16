@@ -18,7 +18,6 @@ export async function middleware(request: NextRequest) {
     request.cookies.get("authjs.session-token")?.value;
 
   const isLoggedIn = !!authToken;
-  console.log("Is logged in:", isLoggedIn);
 
   if (isPublicRoute) {
     if (isLoggedIn) {

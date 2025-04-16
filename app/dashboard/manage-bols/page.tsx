@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { Calendar, Search, X, MoreHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { BillOfLading } from "@/types";
 import { getAllBilOfLanding } from "@/actions/bil";
 import { useRouter } from "next/navigation";
+type DateFilter = "all" | "7days" | "30days" | "60days" | "90days";
 
 export default function BillsOfLading() {
   const [searchParams, setSearchParams] = useState({
@@ -36,7 +36,7 @@ export default function BillsOfLading() {
     shipper: "",
     consignee: "",
   });
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [bols, setBols] = useState<BillOfLading[]>([]);
   const router = useRouter();
 
@@ -54,17 +54,29 @@ export default function BillsOfLading() {
 
   const handleView = (id: string) => {
     router.push(`/dashboard/manage-bols/${id}`);
-    console.log("View bill:", id);
   };
 
   const handleEdit = (id: string) => {
     // Implement edit logic
-    console.log("Edit bill:", id);
   };
 
   const handleDelete = (id: string) => {
     // Implement delete logic
-    console.log("Delete bill:", id);
+  };
+
+  const getDateFilterLabel = (filter: DateFilter) => {
+    switch (filter) {
+      case "7days":
+        return "Last 7 Days";
+      case "30days":
+        return "Last 30 Days";
+      case "60days":
+        return "Last 60 Days";
+      case "90days":
+        return "Last 90 Days";
+      default:
+        return "All Time";
+    }
   };
 
   const filteredData = bols.filter((bill) => {
@@ -77,10 +89,12 @@ export default function BillsOfLading() {
     const matchesConsignee = bill.consignee.name
       .toLowerCase()
       .includes(searchParams.consignee.toLowerCase());
-    const matchesDate =
-      !dateRange?.from ||
-      !dateRange?.to ||
-      (bill.arrivalDate >= dateRange.from && bill.arrivalDate <= dateRange.to);
+    let matchesDate = true;
+    if (dateFilter !== "all") {
+      const days = parseInt(dateFilter);
+      const filterDate = subDays(new Date(), days);
+      matchesDate = bill.arrivalDate >= filterDate;
+    }
 
     return matchesBOL && matchesShipper && matchesConsignee && matchesDate;
   });
@@ -157,40 +171,34 @@ export default function BillsOfLading() {
           )}
         </div>
 
-        <Popover>
-          <PopoverTrigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className={`w-full justify-start text-left font-normal ${
-                !dateRange && "text-muted-foreground"
-              }`}
+              className="w-full justify-start text-left font-normal"
             >
               <Calendar className="mr-2 h-4 w-4" />
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  <>
-                    {format(dateRange.from, "LLL dd, y")} -{" "}
-                    {format(dateRange.to, "LLL dd, y")}
-                  </>
-                ) : (
-                  format(dateRange.from, "LLL dd, y")
-                )
-              ) : (
-                <span>Pick a date range</span>
-              )}
+              {getDateFilterLabel(dateFilter)}
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <CalendarComponent
-              initialFocus
-              mode="range"
-              defaultMonth={dateRange?.from}
-              selected={dateRange}
-              onSelect={setDateRange}
-              numberOfMonths={2}
-            />
-          </PopoverContent>
-        </Popover>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[200px]">
+            <DropdownMenuItem onClick={() => setDateFilter("all")}>
+              All Time
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDateFilter("7days")}>
+              Last 7 Days
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDateFilter("30days")}>
+              Last 30 Days
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDateFilter("60days")}>
+              Last 60 Days
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setDateFilter("90days")}>
+              Last 90 Days
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="rounded-md border">

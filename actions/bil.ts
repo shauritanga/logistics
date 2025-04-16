@@ -153,8 +153,6 @@ export async function getAllBilOfLanding(): Promise<BillOfLading[] | []> {
       "notifyParty",
     ]);
 
-    console.log({ BilOfLandings });
-
     return JSON.parse(JSON.stringify(BilOfLandings, null, 2));
   } catch (error) {
     return [];

@@ -259,7 +259,6 @@ export function PaymentDataTable({
           placeholder="Search Client..."
           value={String(table.getColumn("client.name")?.getFilterValue() ?? "")}
           onChange={(event) => {
-            console.log(event.target.value);
             table.getColumn("client.name")?.setFilterValue(event.target.value);
           }}
           className="w-[300px] rounded border border-gray-300"

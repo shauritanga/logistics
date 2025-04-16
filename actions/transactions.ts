@@ -25,15 +25,6 @@ export async function createTransaction(
 
     await checkPermission(user?.role ?? "USER", "transactions", "create");
 
-    console.log({
-      currency,
-      client,
-      amount,
-      category,
-      transactionDate,
-      description,
-    });
-
     const transaction = new Transaction({
       client,
       currency,
@@ -113,8 +104,7 @@ export async function getTransactionById(id: string) {
     await checkPermission(user?.role ?? "USER", "transactions", "read");
 
     const transaction = await Transaction.findById(id);
-    if (!transaction) throw new Error("Transaction not found");
-    console.log({ transaction });
+
     return JSON.parse(JSON.stringify(transaction)) as TTransaction;
   } catch (error) {
     console.error("Failed to fetch transaction:", error);
@@ -153,7 +143,7 @@ export async function deleteTransaction(id: string) {
 
     // Delete employee from database
     const result = await Transaction.findByIdAndDelete(id);
-    console.log(result);
+
     if (!result) throw new Error("Transaction not found");
     return { success: true, message: "Transaction deleted successfully" };
   } catch (error) {

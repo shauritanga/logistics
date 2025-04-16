@@ -99,7 +99,6 @@ const columns: ColumnDef<ResponseBill>[] = [
       );
     },
     cell: ({ row }) => {
-      console.log(row);
       const date = row.getValue("releasedDate");
       const parsedDate = date as Date;
       const formatedDate = format(parsedDate, "dd-MM-yyyy");

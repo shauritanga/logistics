@@ -11,7 +11,7 @@ export async function createProformaInvoice(formData: any) {
     tax: { rate: Number(tax) },
     discount: { rate: Number(discount) },
   };
-  console.log({ proformaData });
+
   try {
     await dbConnect();
     const proforma = new ProformaInvoice(proformaData);

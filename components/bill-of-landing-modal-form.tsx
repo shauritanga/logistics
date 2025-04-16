@@ -106,7 +106,6 @@ export default function BillOfLadingModalForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     setIsOpen(false);
     // Handle form submission
   }

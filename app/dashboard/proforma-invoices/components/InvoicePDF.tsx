@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
 
 // Define the Invoice PDF component
 export function InvoicePDF({ invoice }: { invoice: IProformaInvoice }) {
-  console.log({ invoice });
   return (
     <Document>
       <Page style={styles.body}>

@@ -40,7 +40,6 @@ export default function Profile01({
 }: Partial<Profile01Props> = defaultProfile) {
   const { data: session, status } = useSession();
 
-  console.log({ session });
   const menuItems: MenuItem[] = [
     {
       label: "Settings",

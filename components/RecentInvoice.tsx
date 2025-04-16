@@ -16,7 +16,7 @@ const workouts = [
 
 export default async function RecentInvoices() {
   const invoices = await getAllInvoices();
-  console.log({ invoices });
+
   return (
     <div className="bg-white text-black dark:text-white dark:bg-black p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4">Recent Invoices</h2>

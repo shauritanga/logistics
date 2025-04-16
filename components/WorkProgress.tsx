@@ -46,7 +46,7 @@ export function WorkProgress() {
     <Card>
       <CardHeader>
         <CardTitle>Yearly Trends</CardTitle>
-        <CardDescription>January - December 2024</CardDescription>
+        <CardDescription>{`January - December ${new Date().getUTCFullYear()}`}</CardDescription>
       </CardHeader>
       <CardContent className="text-black dark:text-white">
         <ChartContainer config={chartConfig}>

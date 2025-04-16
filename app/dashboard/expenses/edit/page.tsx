@@ -86,7 +86,6 @@ export default function EditExpensePage() {
           category: transaction.category,
           description: transaction.description,
         };
-        console.log("Setting form data:", updatedFormData);
         setFormData(updatedFormData);
       } catch (error) {
         console.error("Error fetching data:", error);

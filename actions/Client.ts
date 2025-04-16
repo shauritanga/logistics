@@ -45,7 +45,6 @@ export async function createClient(
     revalidatePath("/dashboard/clients");
     return { success: true, message: "Client has been saved" };
   } catch (error: any) {
-    console.log(error.errorResponse);
     if (error.code === 11000) {
       return { success: false, message: "Email already exists" };
     }

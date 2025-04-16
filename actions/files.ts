@@ -159,18 +159,12 @@ export async function getSignedDownloadUrl(
     }
 
     const config = cloudinary.config();
-    console.log("Active Cloudinary config:", {
-      cloud_name: config.cloud_name,
-      api_key: config.api_key,
-      api_secret: config.api_secret,
-    });
 
     if (!config.cloud_name || !config.api_key || !config.api_secret) {
       return { error: "Cloudinary configuration incomplete" };
     }
 
     const publicId = cloudinaryId;
-    console.log("Using publicId:", publicId);
 
     const resourceTypes = ["raw", "image", "video"];
     let resourceInfo = null;
@@ -182,7 +176,7 @@ export async function getSignedDownloadUrl(
           resource_type: type,
         });
         resourceType = type;
-        console.log(`Found resource with type ${type}:`, resourceInfo);
+
         break;
       } catch (error: any) {
         console.log(
@@ -211,11 +205,9 @@ export async function getSignedDownloadUrl(
       params,
       config.api_secret
     );
-    console.log("Generated signature:", signature);
 
     const downloadUrl = `https://res.cloudinary.com/${config.cloud_name}/${resourceType}/upload/fl_attachment/${publicId}?timestamp=${timestamp}&signature=${signature}&api_key=${config.api_key}`;
 
-    console.log("Final URL:", downloadUrl);
     return { url: downloadUrl };
   } catch (error: any) {
     console.error("Detailed error generating signed URL:", {

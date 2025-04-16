@@ -23,7 +23,6 @@ export default function LoginPage() {
         password,
       });
       setIsLoading(false);
-      console.log({ result });
 
       if (result?.error) {
         setError(result.error);

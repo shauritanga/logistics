@@ -43,7 +43,6 @@ export async function deleteReport(id: string) {
   try {
     await dbConnect();
     const resu = await Report.findByIdAndDelete(id);
-    console.log("item deleted", resu);
     revalidatePath("/dashboard/reports");
   } catch (error) {
     console.log(error);

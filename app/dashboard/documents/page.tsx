@@ -182,10 +182,9 @@ export default function DocumentsPage() {
   const folderSizes = useMemo(() => {
     const sizes: Record<string, number> = {};
     files.forEach((file) => {
-      console.log(file.type);
       if (file.type === "file") {
         let parentPath = file.parentPath;
-        console.log(parentPath);
+
         while (parentPath && parentPath !== "/") {
           sizes[parentPath] = (sizes[parentPath] || 0) + file.size;
           const parentFolder = files.find(
@@ -195,14 +194,14 @@ export default function DocumentsPage() {
         }
       }
     });
-    console.log(sizes);
+
     return sizes;
   }, [files]);
 
   const renderFileSize = (file: FileItem): string => {
     let size =
       file.type === "folder" ? folderSizes[file.path.slice(1)] || 0 : file.size;
-    console.log("size", size);
+
     if (size === 0) return "0 B";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB"];
@@ -218,8 +217,6 @@ export default function DocumentsPage() {
 
     try {
       setIsDownloading(file.id);
-
-      console.log(file.cloudinaryId);
 
       // Get signed URL for download
       const result = await getSignedDownloadUrl(file.cloudinaryId);
