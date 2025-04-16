@@ -1,6 +1,7 @@
 "use server";
 import dbConnect from "@/lib/mongodb";
 import { ProformaInvoice, IProformaInvoice } from "@/models/index";
+import { revalidatePath } from "next/cache";
 
 export async function createProformaInvoice(formData: any) {
   const { tax, discount } = formData;
@@ -33,5 +34,17 @@ export async function getProformaInvoices(): Promise<
   } catch (error) {
     console.log(error);
     return null;
+  }
+}
+
+export async function deleteProformaInvoice(id: string) {
+  try {
+    await dbConnect();
+    const result = await ProformaInvoice.findByIdAndDelete(id);
+    if (!result) throw new Error("Proforma Invoce not found");
+    revalidatePath("/dashboard/invoices");
+    return { success: true, message: "Proforma Invoice deleted successfully" };
+  } catch (error) {
+    return { success: false, message: (error as Error).message };
   }
 }

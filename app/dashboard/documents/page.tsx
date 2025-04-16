@@ -110,6 +110,8 @@ const formatDate = (dateString: string): string => {
   });
 };
 
+export const dynamic = "force-dynamic";
+
 export default function DocumentsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentPath, setCurrentPath] = useState<string[]>(["root"]);

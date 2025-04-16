@@ -3,6 +3,7 @@
 import dbConnect from "@/lib/mongodb";
 import { BillOfLanding } from "@/models/index";
 import { Invoice, Transaction } from "@/models/index";
+import { getExchangeRate } from "@/lib/exchangeRate";
 
 export async function getTotalBillOfLanding() {
   try {
@@ -30,9 +31,29 @@ export async function getUnpaidInvoice() {
 export async function getTotalExpenses() {
   try {
     await dbConnect();
+    const exchangeRate = await getExchangeRate();
+
     const expenses = await Transaction.aggregate([
-      { $match: { category: "expenses" } },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
+      {
+        $match: {
+          category: "expenses",
+          status: "approved",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: {
+              $cond: [
+                { $eq: ["$currency", "USD"] },
+                { $multiply: ["$amount", exchangeRate] }, // Use real-time rate
+                "$amount", // Keep TZS as is
+              ],
+            },
+          },
+        },
+      },
     ]).exec();
     return expenses.length > 0 ? expenses[0].total : 0;
   } catch (error) {

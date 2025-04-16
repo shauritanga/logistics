@@ -15,6 +15,7 @@ import { Client } from "../../clients/components/ClientTable";
 import { IBillOfLanding } from "@/models/index";
 import { createProformaInvoice } from "@/actions/proforma";
 import { enqueueSnackbar } from "notistack";
+import { BillOfLading } from "@/types";
 
 // Define TypeScript interfaces based on the ProformaInvoice schema
 
@@ -41,7 +42,7 @@ export default function ProformaInvoiceForm({
   bols,
   clients,
 }: {
-  bols: IBillOfLanding[];
+  bols: BillOfLading[];
   clients: Client[];
 }) {
   const [formData, setFormData] = useState<ProformaInvoiceData>({
@@ -145,7 +146,7 @@ export default function ProformaInvoiceForm({
                 <SelectValue placeholder="Select a bil of landing" />
               </SelectTrigger>
               <SelectContent>
-                {bols.map((bol: IBillOfLanding) => (
+                {bols.map((bol: BillOfLading) => (
                   <SelectItem key={bol._id} value={bol._id}>
                     {bol.bolNumber}
                   </SelectItem>

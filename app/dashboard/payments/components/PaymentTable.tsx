@@ -10,7 +10,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import dayjs from "dayjs";
 import { Client } from "../../clients/components/ClientTable";
-import AddTransactionModal from "./PaymentForm";
+import { useRouter } from "next/navigation";
 
 interface Transaction {
   _id: string;
@@ -55,10 +55,8 @@ interface Transaction {
 
 export function PaymentDataTable({
   transactions,
-  clients,
 }: {
   transactions: Transaction[];
-  clients: Client[];
 }) {
   const [openForm, setOpenForm] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -70,12 +68,9 @@ export function PaymentDataTable({
   const [itemToDelete, setItemToDelete] = React.useState(null);
   const [isAlertOpen, setIsAlertOpen] = React.useState(false);
   const data = transactions;
+  const router = useRouter();
 
   const columns = [
-    {
-      accessorKey: "_id",
-      header: "ID",
-    },
     {
       accessorKey: "transactionDate",
       header: "Date",
@@ -156,7 +151,8 @@ export function PaymentDataTable({
       id: "actions",
       enableHiding: false,
       cell: ({ row }: { row: any }) => {
-        const order = row.original;
+        const transaction = row.original;
+        const isPending = transaction.status === "pending";
 
         return (
           <DropdownMenu>
@@ -167,10 +163,38 @@ export function PaymentDataTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => console.log("Edit", order._id)}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {isPending && (
+                <>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      router.push(
+                        `/dashboard/payments/edit?id=${transaction._id}`
+                      );
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setItemToDelete(transaction);
+                      setIsAlertOpen(true);
+                    }}
+                    className="cursor-pointer text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+              {!isPending && (
+                <DropdownMenuItem disabled>
+                  <span className="text-muted-foreground">
+                    No actions available
+                  </span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -209,12 +233,6 @@ export function PaymentDataTable({
           }}
           className="w-[300px] rounded border border-gray-300"
         />
-        <Button
-          onClick={() => setOpenForm(true)}
-          className=" bg-[#f38633] hover:bg-[#d4915e] text-white rounded"
-        >
-          New Payment
-        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -311,11 +329,6 @@ export function PaymentDataTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <AddTransactionModal
-        isOpen={openForm}
-        onClose={() => setOpenForm(false)}
-        clients={clients}
-      />
     </div>
   );
 }

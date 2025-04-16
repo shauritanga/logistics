@@ -45,7 +45,6 @@ export default function TransactionTable({
     <Table className="min-w-full bg-white dark:bg-gray-800">
       <TableHeader>
         <TableRow>
-          <TableHead className="py-2 px-4 border-b">ID</TableHead>
           <TableHead className="py-2 px-4 border-b">Client Name</TableHead>
           <TableHead className="py-2 px-4 border-b">Date</TableHead>
           <TableHead className="py-2 px-4 border-b">Amount</TableHead>
@@ -57,9 +56,6 @@ export default function TransactionTable({
       <TableBody>
         {transactions.map((transaction) => (
           <TableRow key={transaction._id}>
-            <TableCell className="py-2 px-4 border-b">
-              {transaction._id}
-            </TableCell>
             <TableCell className="py-2 px-4 border-b">
               {transaction.client.name}
             </TableCell>

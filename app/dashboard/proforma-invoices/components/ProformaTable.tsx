@@ -16,13 +16,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Download, Edit, Trash, FileText } from "lucide-react";
-import { deleteQuotation } from "@/actions/quotation";
 import { ActionResponse, Quotation } from "@/types";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { InvoicePDF } from "./Invoice";
 import { IProformaInvoice } from "@/models/index";
 import { addDays, format } from "date-fns";
 import { createInvoice } from "@/actions/invoice";
+import { deleteProformaInvoice } from "@/actions/proforma";
 
 export default function ProformaTable({
   proformaInvoices,
@@ -34,7 +34,7 @@ export default function ProformaTable({
   // Handle delete action
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this quotation?")) {
-      const result: ActionResponse = await deleteQuotation(id);
+      const result: ActionResponse = await deleteProformaInvoice(id);
       if (result.success) {
         enqueueSnackbar(result.message, { variant: "success" });
       } else {
@@ -44,8 +44,8 @@ export default function ProformaTable({
   };
 
   // Placeholder for download (e.g., PDF generation)
-  const handleDownload = (quotation: Quotation) => {
-    enqueueSnackbar(`Downloading quotation ${quotation.quotationNumber}`, {
+  const handleDownload = (proforma: IProformaInvoice) => {
+    enqueueSnackbar(`Downloading quotation ${proforma.proformaNumber}`, {
       variant: "info",
     });
     // Example with jsPDF: const doc = new jsPDF(); doc.text(quotation.quotationNumber); doc.save();
@@ -53,7 +53,7 @@ export default function ProformaTable({
 
   // Placeholder for edit
   const handleEdit = (quotation: IProformaInvoice) => {
-    enqueueSnackbar(`Editing quotation ${quotation.proformaNumber}`, {
+    enqueueSnackbar(`Editing Proforma invoice ${quotation.proformaNumber}`, {
       variant: "info",
     });
     // Could set state to open an edit dialog
@@ -61,10 +61,12 @@ export default function ProformaTable({
 
   // Handle export to invoice
   const handleExportToInvoice = async (proforma: IProformaInvoice) => {
-    console.log({ proforma });
     const invoiceData = {
       client: proforma.client._id.toString(),
-      items: proforma.items,
+      items: proforma.items.map((item) => ({
+        ...item,
+        currency: "TZS", // Add default currency
+      })),
       tax: {
         rate: proforma.tax?.rate,
       },
@@ -76,10 +78,9 @@ export default function ProformaTable({
       notes: proforma.notes?.toString() || "",
     };
 
-    console.log({ invoiceData });
     try {
       const result = await createInvoice(null, invoiceData, true);
-      enqueueSnackbar(`Exporting proforma ${result.message}`, {
+      enqueueSnackbar(`${result.message} from proforma`, {
         variant: "info",
       });
     } catch (error: any) {
@@ -122,7 +123,7 @@ export default function ProformaTable({
                 <TableCell className="font-medium">
                   {proforma.proformaNumber}
                 </TableCell>
-                <TableCell>{proforma.client.name}</TableCell>
+                <TableCell>{proforma.client?.name}</TableCell>
                 <TableCell>
                   {format(new Date(proforma.issueDate), "PPP")}
                 </TableCell>

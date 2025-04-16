@@ -30,7 +30,7 @@ export default async function RecentInvoices() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {invoice.notes}
+                    {invoice.client.name}
                   </p>
                   <p className="text-sm text-gray-500">
                     {new Intl.DateTimeFormat("en-US", {

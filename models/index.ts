@@ -251,6 +251,7 @@ interface IInvoiceItem {
   quantity: number;
   unitPrice: number;
   total: number;
+  currency: string;
 }
 
 interface ITax {
@@ -318,14 +319,18 @@ const invoiceSchema = new Schema<IInvoice>(
         },
         total: {
           type: Number,
-          // required: [true, "Item total is required"],
           min: [0, "Item total cannot be negative"],
+        },
+        currency: {
+          type: String,
+          required: [true, "Currency is required"],
+          default: "USD",
+          enum: ["USD", "TZS"],
         },
       },
     ],
     subtotal: {
       type: Number,
-      // required: [true, "Subtotal is required"],
       min: [0, "Subtotal cannot be negative"],
     },
     tax: {
@@ -504,19 +509,27 @@ invoiceSchema.virtual("daysUntilDue").get(function () {
 
 // Instance method to mark as paid
 invoiceSchema.methods.markAsPaid = async function () {
-  this.status = "paid";
-  return this.save();
+  return this.model("Invoice").findByIdAndUpdate(
+    this._id,
+    { $set: { status: "paid" } },
+    { new: true }
+  );
 };
 
-// Instance method to mark as sent
-invoiceSchema.methods.markAsSent = async function () {
-  this.status = "sent";
-  return this.save();
+invoiceSchema.methods.markAsOverDue = async function () {
+  return this.model("Invoice").findByIdAndUpdate(
+    this._id,
+    { $set: { status: "overdue" } },
+    { new: true }
+  );
 };
-// Instance method to mark as paid
-invoiceSchema.methods.markAsPaid = async function () {
-  this.status = "paid";
-  return this.save();
+
+invoiceSchema.methods.markAsCanceled = async function () {
+  return this.model("Invoice").findByIdAndUpdate(
+    this._id,
+    { $set: { status: "canceled" } },
+    { new: true }
+  );
 };
 
 // Instance methods
@@ -770,7 +783,7 @@ const QuotationSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["pending", "accepted", "rejected", "expired"],
-      default: "pending", // Tracks the quotation’s lifecycle
+      default: "pending", // Tracks the quotation's lifecycle
     },
     services: {
       clearing: {
@@ -972,6 +985,23 @@ const userSchema = new Schema<IUser>({
 const User = mongoose.models?.User || mongoose.model<IUser>("User", userSchema);
 /* ============================= END USER ================================== */
 
+/* ============================= REPORT ================================== */
+const reportSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  status: {
+    type: String,
+    enum: ["draft", "in-review", "completed"],
+    default: "draft",
+  },
+  employeeName: { type: String, required: true },
+});
+
+const Report = mongoose.models.Report || mongoose.model("Report", reportSchema);
+
+/* ============================= END REPORT ================================== */
+
 export {
   Client,
   BillOfLanding,
@@ -982,4 +1012,5 @@ export {
   Role,
   Transaction,
   User,
+  Report,
 };

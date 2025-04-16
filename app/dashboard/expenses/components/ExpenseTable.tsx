@@ -10,7 +10,13 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2 } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  MoreHorizontal,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,8 +46,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import dayjs from "dayjs";
-import AddTransactionModal from "./ExpenseForm";
+
 import { Client } from "../../clients/components/ClientTable";
+import { deleteTransaction } from "@/actions/transactions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { enqueueSnackbar } from "notistack";
 
 interface Transaction {
   _id: string;
@@ -54,27 +64,41 @@ interface Transaction {
 
 export function PaymentDataTable({
   transactions,
-  clients,
 }: {
   transactions: Transaction[];
-  clients: Client[];
 }) {
-  const [openForm, setOpenForm] = React.useState(false);
+  const router = useRouter();
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [itemToDelete, setItemToDelete] = React.useState(null);
+  const [itemToDelete, setItemToDelete] = React.useState<Transaction | null>(
+    null
+  );
   const [isAlertOpen, setIsAlertOpen] = React.useState(false);
   const data = transactions;
 
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const result = await deleteTransaction(itemToDelete._id);
+      if (result.success) {
+        enqueueSnackbar(result.message, { variant: "success" });
+        router.refresh();
+      }
+    } catch (error) {
+      enqueueSnackbar("Update failed", { variant: "error" });
+    } finally {
+      setIsAlertOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
   const columns = [
-    {
-      accessorKey: "_id",
-      header: "ID",
-    },
     {
       accessorKey: "transactionDate",
       header: "Date",
@@ -111,6 +135,9 @@ export function PaymentDataTable({
         const category = row.original.category;
         return <div className="capitalize">{category}</div>;
       },
+    },
+    {
+      accessorKey: "description",
     },
 
     {
@@ -155,7 +182,8 @@ export function PaymentDataTable({
       id: "actions",
       enableHiding: false,
       cell: ({ row }: { row: any }) => {
-        const order = row.original;
+        const transaction = row.original;
+        const isPending = transaction.status === "pending";
 
         return (
           <DropdownMenu>
@@ -166,10 +194,38 @@ export function PaymentDataTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => console.log("Edit", order._id)}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {isPending && (
+                <>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      router.push(
+                        `/dashboard/expenses/edit?id=${transaction._id}`
+                      );
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      setItemToDelete(transaction);
+                      setIsAlertOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+              {!isPending && (
+                <DropdownMenuItem disabled>
+                  <span className="text-muted-foreground">
+                    No actions available
+                  </span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -208,13 +264,6 @@ export function PaymentDataTable({
           }}
           className="w-[300px] rounded border border-gray-300"
         />
-
-        <Button
-          onClick={() => setOpenForm(true)}
-          className=" bg-[#f38633] hover:bg-[#d4915e] text-white rounded"
-        >
-          New Expense
-        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -295,27 +344,19 @@ export function PaymentDataTable({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you sure you want to delete this customer?
+              Are you sure you want to delete this transaction?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete payment
-              with
-              {} volume.
+              This action cannot be undone. This will permanently delete the
+              transaction.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => console.log("Delete")}>
-              Yes, delete payment
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <AddTransactionModal
-        isOpen={openForm}
-        onClose={() => setOpenForm(false)}
-        clients={clients}
-      />
     </div>
   );
 }

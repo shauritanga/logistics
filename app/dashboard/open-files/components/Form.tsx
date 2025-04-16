@@ -311,14 +311,16 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               ))}
             </select>
           </div>
-          <div>
-            <Label>Consignee</Label>
+          <div className="space-y-2">
+            <Label className="text-gray-700 dark:text-gray-300">
+              Consignee
+            </Label>
             <select
               name="consignee"
               value={formData.consignee}
               onChange={handleInputChange}
               required
-              className="w-full p-2 border rounded"
+              className="w-full p-2 rounded-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             >
               <option value="">Select consignee</option>
               {clients?.map((client) => (
@@ -328,13 +330,15 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               ))}
             </select>
           </div>
-          <div>
-            <Label>Notify Party</Label>
+          <div className="space-y-2">
+            <Label className="text-gray-700 dark:text-gray-300">
+              Notify Party
+            </Label>
             <select
               name="notifyParty"
               value={formData.notifyParty}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 rounded-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             >
               <option value="">Select notify party</option>
               {clients?.map((client) => (
@@ -394,6 +398,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               type="date"
               name="arrivalDate"
               value={formData.arrivalDate}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -403,6 +408,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               type="date"
               name="releasedDate"
               value={formData.releasedDate}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -411,6 +417,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             <Input
               name="deliveryPlace"
               value={formData.deliveryPlace}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -419,6 +426,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             <Input
               name="countryLastConsignment"
               value={formData.countryLastConsignment}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -427,6 +435,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             <Input
               name="tradingCountry"
               value={formData.tradingCountry}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -435,6 +444,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             <Input
               name="countryOfExeport"
               value={formData.countryOfExeport}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -443,6 +453,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             <Input
               name="entryOffice"
               value={formData.entryOffice}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -451,6 +462,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
             <Input
               name="shippingOrder"
               value={formData.shippingOrder}
+              required
               onChange={handleInputChange}
             />
           </div>
@@ -477,6 +489,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
                 placeholder="Place"
                 value={formData.term.place}
                 onChange={(e) => handleNestedChange(e, "term", "place")}
+                required
               />
             </div>
           </div>
@@ -494,6 +507,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
                 type="date"
                 value={formData.tansad.date}
                 onChange={(e) => handleNestedChange(e, "tansad", "date")}
+                required
               />
             </div>
           </div>
@@ -541,6 +555,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               placeholder="Value"
               value={item.value}
               onChange={(e) => handleArrayChange(e, "goods", index, "value")}
+              required
               className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
             <Input
@@ -549,6 +564,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               onChange={(e) =>
                 handleArrayChange(e, "goods", index, "containerReference")
               }
+              required
               className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
           </div>
@@ -609,6 +625,7 @@ export default function BillOfLadingForm({ clients }: { clients: Client[] }) {
               onChange={(e) =>
                 handleArrayChange(e, "containers", index, "sealNumber")
               }
+              required
               className="w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:ring-[#f38633] focus:border-[#f38633] transition-colors duration-200"
             />
           </div>

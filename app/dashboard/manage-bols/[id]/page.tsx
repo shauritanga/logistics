@@ -1,356 +1,251 @@
+"use client";
+
+import { useParams, useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { ArrowLeft, Package, Truck, Ship, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { BillOfLading } from "@/types";
+import { useEffect, useState } from "react";
 import { getBillOfLandingById } from "@/actions/bil";
-import { notFound } from "next/navigation";
-import { BillOfLandingResponse } from "@/types";
 
-export default async function BillOfLadingDetailsPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const id = (await params).id;
-  const billOfLading = (await getBillOfLandingById(
-    id
-  )) as BillOfLandingResponse;
+// Mock data - replace with actual API call
 
-  if (!billOfLading) {
-    notFound();
+export default function BillDetails() {
+  const [bill, setBill] = useState<BillOfLading>();
+  const router = useRouter();
+  const params = useParams();
+
+  useEffect(() => {
+    const getBill = async () => {
+      const bill = await getBillOfLandingById(params.id as string);
+      setBill(bill as BillOfLading);
+    };
+
+    getBill();
+  }, []);
+
+  if (!bill) {
+    return (
+      <div className="container mx-auto py-8">
+        <h1 className="text-2xl font-bold mb-4">Bill of Lading not found</h1>
+        <Button onClick={() => router.back()}>
+          <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
+        </Button>
+      </div>
+    );
   }
 
-  console.log({ billOfLading });
-
   return (
-    <div className="w-full p-6">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">
-        Bill of Lading Details
-      </h1>
-
-      {/* Basic Information */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Basic Information
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              BOL Number:
-            </span>{" "}
-            {billOfLading.bolNumber}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Country of Last Consignment:
-            </span>{" "}
-            {billOfLading.countryLastConsignment}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Country of Export:
-            </span>{" "}
-            {billOfLading.countryOfExeport}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Entry Office:
-            </span>{" "}
-            {billOfLading.entryOffice}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Created At:
-            </span>{" "}
-            {new Date(billOfLading.createdAt).toLocaleString()}
-          </div>
+    <div className="container mx-auto py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <Button variant="outline" onClick={() => router.back()}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Bills
+          </Button>
+          <h1 className="text-3xl font-bold mt-4">Bill of Lading Details</h1>
+          <p className="text-muted-foreground">BOL Number: {bill.bolNumber}</p>
         </div>
-      </section>
+        <div>
+          <span
+            className={`px-3 py-1 rounded-full text-sm ${
+              bill.releasedDate
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
+            {bill.releasedDate ? "Released" : "Pending"}
+          </span>
+        </div>
+      </div>
 
-      {/* Containers */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Containers
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-700">
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Container Number
-                </th>
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Tare Weight
-                </th>
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Gross Weight
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-700 dark:text-gray-300">
-              {billOfLading.containers.map((container, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {container.containerNumber}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {container.tareWeight}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {container.grossWeight}
-                  </td>
-                </tr>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Shipping Information</CardTitle>
+            <CardDescription>Details about the shipment route</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-4">
+                <Ship className="h-5 w-5 text-muted-foreground mt-1" />
+                <div>
+                  <p className="font-medium">Vessel</p>
+                  <p className="text-sm text-muted-foreground">
+                    {bill.vessleName} ({bill.shippingLine})
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Order: {bill.shippingOrder}
+                  </p>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-start space-x-4">
+                <Truck className="h-5 w-5 text-muted-foreground mt-1" />
+                <div>
+                  <p className="font-medium">Route</p>
+                  <p className="text-sm text-muted-foreground">
+                    From: {bill.portOfLoading}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    To: {bill.portOfDischarge}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Delivery: {bill.deliveryPlace}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Parties</CardTitle>
+            <CardDescription>
+              Information about involved parties
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <p className="font-medium">Shipper</p>
+                <p className="text-sm text-muted-foreground">
+                  {bill.shipper.name}
+                </p>
+              </div>
+              <Separator />
+              <div>
+                <p className="font-medium">Consignee</p>
+                <p className="text-sm text-muted-foreground">
+                  {bill.consignee.name}
+                </p>
+              </div>
+              <Separator />
+              <div>
+                <p className="font-medium">Notify Party</p>
+                <p className="text-sm text-muted-foreground">
+                  {bill.notifyParty.name}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Containers & Goods</CardTitle>
+            <CardDescription>Cargo details and specifications</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {bill.containers.map((container) => (
+                <div key={container.containerNumber} className="space-y-4">
+                  <div className="flex items-start space-x-4">
+                    <Package className="h-5 w-5 text-muted-foreground mt-1" />
+                    <div>
+                      <p className="font-medium">
+                        Container: {container.containerNumber}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Tare Weight: {container.tareWeight} kg
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Gross Weight: {container.grossWeight} kg
+                      </p>
+                    </div>
+                  </div>
+                  <div className="pl-9">
+                    <p className="font-medium mb-2">Goods</p>
+                    {bill.goods
+                      .filter(
+                        (good) =>
+                          good.containerReference === container.containerNumber
+                      )
+                      .map((good, index) => (
+                        <div
+                          key={index}
+                          className="text-sm text-muted-foreground mb-2"
+                        >
+                          <p>{good.description}</p>
+                          <p>
+                            Quantity: {good.quantity} | Weight: {good.weight} kg
+                          </p>
+                          {good.value && (
+                            <p>Value: {good.value.toLocaleString()} USD</p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Goods */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Goods
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-gray-700">
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Description
-                </th>
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Quantity
-                </th>
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Weight
-                </th>
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Value
-                </th>
-                <th className="border border-gray-200 dark:border-gray-600 p-2 text-left text-gray-800 dark:text-gray-200">
-                  Container Ref
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-700 dark:text-gray-300">
-              {billOfLading.goods.map((item, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {item.description}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {item.quantity}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {item.weight}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {item.value ?? "N/A"}
-                  </td>
-                  <td className="border border-gray-200 dark:border-gray-600 p-2">
-                    {item.containerReference ?? "N/A"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* Shipping Details */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Shipping Details
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Port of Loading:
-            </span>{" "}
-            {billOfLading.portOfLoading}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Port of Discharge:
-            </span>{" "}
-            {billOfLading.portOfDischarge}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Delivery Place:
-            </span>{" "}
-            {billOfLading.deliveryPlace ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Vessel Name:
-            </span>{" "}
-            {billOfLading.vessleName ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Arrival Date:
-            </span>
-            {/* {billOfLading.arrivalDate?.toLocaleDateString() ?? "N/A"} */}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Released Date:
-            </span>{" "}
-            {billOfLading.releasedDate ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Term:
-            </span>
-            {billOfLading.term.code && billOfLading.term.place
-              ? `${billOfLading.term.code} - ${billOfLading.term.place}`
-              : "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Tansad:
-            </span>
-            {billOfLading.tansad.number && billOfLading.tansad.date
-              ? `${billOfLading.tansad.number} (${new Date(
-                  billOfLading.tansad.date
-                ).toLocaleDateString()})`
-              : "N/A"}
-          </div>
-        </div>
-      </section>
-
-      {/* Charges */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Charges
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Freight Charges:
-            </span>
-            {billOfLading.freightCharges.amount}{" "}
-            {billOfLading.freightCharges.currency}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Insurance:
-            </span>
-            {billOfLading.insurance.amount} {billOfLading.insurance.currency}
-          </div>
-        </div>
-      </section>
-
-      {/* Parties */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Parties Involved
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Shipper:
-            </span>{" "}
-            {billOfLading.shipper?.name}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Notify Party:
-            </span>{" "}
-            {billOfLading.notifyParty?.name}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Consignee:
-            </span>{" "}
-            {billOfLading.consignee?.name}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Shipping Line:
-            </span>{" "}
-            {billOfLading.shippingLine ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Shipping Order:
-            </span>{" "}
-            {billOfLading.shippingOrder ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Trading Country:
-            </span>{" "}
-            {billOfLading.tradingCountry ?? "N/A"}
-          </div>
-        </div>
-      </section>
-
-      {/* Packing List */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Packing List
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Total Packages:
-            </span>{" "}
-            {billOfLading.packingList.totalPackages ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Total Net Weight:
-            </span>{" "}
-            {billOfLading.packingList.totalNetWeight ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Total Gross Weight:
-            </span>{" "}
-            {billOfLading.packingList.totalGrossWeight ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Total Volume:
-            </span>{" "}
-            {billOfLading.packingList.totalVolume ?? "N/A"}
-          </div>
-        </div>
-      </section>
-
-      {/* Port Invoice */}
-      <section className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6 mb-6 shadow-sm">
-        <h2 className="bg-gray-100 dark:bg-gray-700 p-3 -mx-6 -mt-6 mb-4 font-semibold text-gray-800 dark:text-gray-200 rounded-t-lg">
-          Port Invoice
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Invoice Number:
-            </span>{" "}
-            {billOfLading.portInvoice.invoiceNumber ?? "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Amount:
-            </span>
-            {billOfLading.portInvoice.amount &&
-            billOfLading.portInvoice.currency
-              ? `${billOfLading.portInvoice.amount} ${billOfLading.portInvoice.currency}`
-              : "N/A"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
-              Date:
-            </span>
-            {/* {billOfLading.portInvoice.date?.toLocaleDateString() ?? "N/A"} */}
-          </div>
-        </div>
-      </section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Financial Information</CardTitle>
+            <CardDescription>Charges and payment details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-4">
+                <DollarSign className="h-5 w-5 text-muted-foreground mt-1" />
+                <div>
+                  <p className="font-medium">Freight Charges</p>
+                  <p className="text-sm text-muted-foreground">
+                    {bill.freightCharges.amount.toLocaleString()}{" "}
+                    {bill.freightCharges.currency}
+                  </p>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-start space-x-4">
+                <DollarSign className="h-5 w-5 text-muted-foreground mt-1" />
+                <div>
+                  <p className="font-medium">Insurance</p>
+                  <p className="text-sm text-muted-foreground">
+                    {bill.insurance.amount.toLocaleString()}{" "}
+                    {bill.insurance.currency}
+                  </p>
+                </div>
+              </div>
+              <Separator />
+              <div>
+                <p className="font-medium">Terms</p>
+                <p className="text-sm text-muted-foreground">
+                  {bill.term.code} {bill.term.place}
+                </p>
+              </div>
+              <Separator />
+              <div>
+                {/* <p className="font-medium">Port Invoice</p> */}
+                {/* <p className="text-sm text-muted-foreground">
+                  Invoice Number: {bill.portInvoice.invoiceNumber}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Amount: {bill.portInvoice.amount.toLocaleString()}{" "}
+                  {bill.portInvoice.currency}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Date:{" "}
+                  {format(new Date(bill.portInvoice.date), "MMM dd, yyyy")}
+                </p> */}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { User, Transaction } from "@/models/index";
 import checkPermission from "@/lib/checkPermission";
 import dbConnect from "@/lib/mongodb";
-import { ActionResponse } from "@/types";
+import { ActionResponse, Transaction as TTransaction } from "@/types";
 import { revalidatePath } from "next/cache";
 
 export async function createTransaction(
@@ -44,7 +44,7 @@ export async function createTransaction(
     });
     await transaction.save();
     revalidatePath("/dashboard");
-    revalidatePath("/dashboard/employees");
+    revalidatePath("/dashboard/expenses");
     return { success: true, message: `${category} has been saved` };
   } catch (error: any) {
     return { success: false, message: `${category} creation failed` };
@@ -104,31 +104,60 @@ export async function readTransaction(id: number) {
   return transaction;
 }
 
-export async function updateTransaction(id: string, data: any) {
-  await dbConnect();
-  const session = await auth();
-  const user = session?.user;
+export async function getTransactionById(id: string) {
+  try {
+    await dbConnect();
+    const session = await auth();
+    const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "transactions", "update");
+    await checkPermission(user?.role ?? "USER", "transactions", "read");
 
-  // Update employee in database
-  const transaction = await Transaction.findByIdAndUpdate(id, data, {
-    new: true,
-  });
-  if (!transaction) throw new Error("Transaction not found");
-  revalidatePath("/dashboard/transactions");
-  return transaction;
+    const transaction = await Transaction.findById(id);
+    if (!transaction) throw new Error("Transaction not found");
+    console.log({ transaction });
+    return JSON.parse(JSON.stringify(transaction)) as TTransaction;
+  } catch (error) {
+    console.error("Failed to fetch transaction:", error);
+    throw error;
+  }
 }
 
-export async function deleteTransaction(id: number) {
-  await dbConnect();
-  const session = await auth();
-  const user = session?.user;
+export async function updateTransaction(id: string, data: any) {
+  try {
+    await dbConnect();
+    const session = await auth();
+    const user = session?.user;
 
-  await checkPermission(user?.role ?? "USER", "Transaction", "delete");
+    await checkPermission(user?.role ?? "USER", "transactions", "update");
 
-  // Delete employee from database
-  const result = await User.findByIdAndDelete(id);
-  if (!result) throw new Error("Transaction not found");
-  return { message: "Transaction deleted successfully" };
+    // Update employee in database
+    const transaction = await Transaction.findByIdAndUpdate(id, data, {
+      new: true,
+    });
+    if (!transaction) throw new Error("Transaction not found");
+    revalidatePath("/dashboard/transactions");
+    return { success: true, message: "Transaction updated successfully" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Transaction update failed" };
+  }
+}
+
+export async function deleteTransaction(id: string) {
+  try {
+    await dbConnect();
+    const session = await auth();
+    const user = session?.user;
+
+    await checkPermission(user?.role ?? "USER", "transactions", "delete");
+
+    // Delete employee from database
+    const result = await Transaction.findByIdAndDelete(id);
+    console.log(result);
+    if (!result) throw new Error("Transaction not found");
+    return { success: true, message: "Transaction deleted successfully" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Transaction deleted successfully" };
+  }
 }

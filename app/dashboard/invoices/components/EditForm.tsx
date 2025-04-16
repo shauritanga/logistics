@@ -21,17 +21,16 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Client } from "../../clients/components/ClientTable";
-import { ActionResponse } from "@/types";
-import { createInvoice, DataSource } from "@/actions/invoice";
+import { ActionResponse, Invoice } from "@/types";
+import { updateInvoice, DataSource } from "@/actions/invoice"; // Changed to updateInvoice
 import { enqueueSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
 
 interface Item {
   description: string;
   quantity: number;
   unitPrice: number;
-  currency: "USD" | "TZS";
+  currency: string;
 }
 
 interface InvoiceFormData {
@@ -39,38 +38,54 @@ interface InvoiceFormData {
   items: Item[];
   tax: number;
   discount: number;
-  dueDate: string;
+  dueDate: Date;
   paymentTerms: string;
   notes: string;
 }
 
-interface InvoiceCreateDialogProps {
+export interface InvoiceEditFormProps {
+  open: boolean;
   clients: Client[];
+  invoice: Invoice;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function InvoiceForm({ clients }: InvoiceCreateDialogProps) {
+export function InvoiceEditForm({
+  clients,
+  invoice,
+  open,
+  setOpen,
+  onClose,
+}: InvoiceEditFormProps) {
   const [formData, setFormData] = React.useState<InvoiceFormData>({
-    client: "",
-    items: [{ description: "", quantity: 1, unitPrice: 0, currency: "USD" }],
-    tax: 0,
-    discount: 0,
-    dueDate: "",
-    paymentTerms: "Due upon receipt",
-    notes: "",
+    client: invoice.client._id,
+    items:
+      invoice.items.length > 0
+        ? invoice.items.map((item) => ({
+            ...item,
+            currency: item.currency || "USD", // Default to USD if not specified
+          }))
+        : [{ description: "", quantity: 1, unitPrice: 0, currency: "USD" }],
+    tax: invoice.tax.rate,
+    discount: invoice.discount.rate,
+    dueDate: new Date(invoice.dueDate), // Ensure dueDate is a proper Date object
+    paymentTerms: invoice.paymentTerms,
+    notes: invoice.notes,
   });
-  const [open, setOpen] = React.useState(false);
+  const router = useRouter();
 
   const initialState: ActionResponse = { success: false, message: "" };
   const [state, action, isPending] = React.useActionState(
     (state: ActionResponse, payload: DataSource) =>
-      createInvoice(state, payload, false),
+      updateInvoice(state, payload, invoice._id, false), // Pass invoice ID
     initialState
   );
 
   React.useEffect(() => {
     if (state.success) {
       enqueueSnackbar(`${state.message}`, {
-        variant: "success",
+        variant: "info",
       });
       setOpen(false);
     }
@@ -87,18 +102,22 @@ export function InvoiceForm({ clients }: InvoiceCreateDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-[#f38633] text-white hover:bg-[#b56425] rounded">
-          <Plus className="h-24 w-24" /> New Invoice
-        </Button>
-      </DialogTrigger>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          onClose(false); // Pass 'false' to indicate the dialog is closed
+        }
+      }}
+    >
+      <DialogTrigger asChild></DialogTrigger>
       <DialogContent className="max-w-[90vw] w-[800px] max-h-[90vh] overflow-y-auto bg-white">
         <DialogHeader>
-          <DialogTitle>Create Invoice</DialogTitle>
+          <DialogTitle>Edit Invoice</DialogTitle>
           <DialogDescription>
-            Fill in the details to create a new invoice. Required fields are
-            marked with *.
+            Update the details of the invoice. Required fields are marked with
+            *.
           </DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-4">
@@ -133,9 +152,12 @@ export function InvoiceForm({ clients }: InvoiceCreateDialogProps) {
                 name="dueDate"
                 type="date"
                 required
-                value={formData.dueDate}
+                value={formData.dueDate.toISOString().split("T")[0]}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, dueDate: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    dueDate: new Date(e.target.value),
+                  }))
                 }
               />
             </div>
@@ -267,7 +289,7 @@ export function InvoiceForm({ clients }: InvoiceCreateDialogProps) {
                           onValueChange={(value) =>
                             setFormData((prev) => {
                               const newItems = [...prev.items];
-                              newItems[index].currency = value as "USD" | "TZS";
+                              newItems[index].currency = value;
                               return { ...prev, items: newItems };
                             })
                           }
@@ -337,8 +359,8 @@ export function InvoiceForm({ clients }: InvoiceCreateDialogProps) {
           </div>
 
           <DialogFooter className="sm:justify-end">
-            <Button type="submit">
-              {isPending ? "Submitting..." : "Submit"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Updating..." : "Update Invoice"}
             </Button>
           </DialogFooter>
         </form>

@@ -39,9 +39,11 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
-import { ResponseBill } from "@/types";
 import { format, parseISO } from "date-fns";
 import { IBillOfLanding } from "@/models/index";
+import { deleteBillOfLading } from "@/actions/bil";
+import { useTransition } from "react";
+import { enqueueSnackbar } from "notistack";
 
 const columns: ColumnDef<IBillOfLanding>[] = [
   {
@@ -132,6 +134,23 @@ const columns: ColumnDef<IBillOfLanding>[] = [
     cell: ({ row }) => {
       const billOfLading = row.original;
       const router = useRouter();
+      const [isPending, startTransition] = useTransition();
+
+      const handleDelete = async (id: string) => {
+        startTransition(async () => {
+          const result = await deleteBillOfLading(id);
+          if (result.success) {
+            enqueueSnackbar("Bill of Lading deleted successfully", {
+              variant: "success",
+            });
+            router.refresh();
+          } else {
+            enqueueSnackbar(result.error || "Failed to delete Bill of Lading", {
+              variant: "error",
+            });
+          }
+        });
+      };
 
       return (
         <DropdownMenu>
@@ -163,11 +182,12 @@ const columns: ColumnDef<IBillOfLanding>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => console.log("Delete", billOfLading._id)}
+              onClick={() => handleDelete(billOfLading._id)}
               className="flex items-center gap-2 text-red-600 focus:text-red-600"
+              disabled={isPending}
             >
               <Trash2 className="h-4 w-4" />
-              Delete
+              {isPending ? "Deleting..." : "Delete"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -185,6 +205,7 @@ export default function BillOfLadingTable({
 }: BillOfLadingTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const router = useRouter();
 
   const table = useReactTable({
     data: initialData,

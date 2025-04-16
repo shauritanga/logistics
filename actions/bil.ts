@@ -1,8 +1,10 @@
 "use server";
 
+import { auth } from "@/auth";
+import checkPermission from "@/lib/checkPermission";
 import dbConnect from "@/lib/mongodb";
 import { BillOfLanding, IBillOfLanding } from "@/models/index";
-import { BillOfLandingResponse } from "@/types";
+import { BillOfLading, BillOfLandingResponse } from "@/types";
 import { z } from "zod";
 
 const billOfLandingSchema = z.object({
@@ -28,6 +30,9 @@ export async function createBillOfLading(
 ): Promise<{ success?: boolean; error?: string }> {
   try {
     await dbConnect();
+    const session = await auth();
+    const user = session?.user;
+    await checkPermission(user?.role ?? "USER", "bils", "create");
 
     const {
       bolNumber,
@@ -135,18 +140,25 @@ export async function createBillOfLading(
   }
 }
 
-export async function getAllBilOfLanding(): Promise<IBillOfLanding[] | []> {
+export async function getAllBilOfLanding(): Promise<BillOfLading[] | []> {
   try {
     await dbConnect();
+    const session = await auth();
+    const user = session?.user;
+    await checkPermission(user?.role ?? "USER", "bils", "read");
+
     const BilOfLandings = await BillOfLanding.find().populate([
       "shipper",
       "consignee",
       "notifyParty",
     ]);
 
+    console.log({ BilOfLandings });
+
     return JSON.parse(JSON.stringify(BilOfLandings, null, 2));
-  } catch (error) {}
-  return [];
+  } catch (error) {
+    return [];
+  }
 }
 
 export async function getBillOfLandingById(
@@ -154,6 +166,10 @@ export async function getBillOfLandingById(
 ): Promise<BillOfLandingResponse | null> {
   try {
     await dbConnect();
+    const session = await auth();
+    const user = session?.user;
+    await checkPermission(user?.role ?? "USER", "bils", "read");
+
     const billOfLanding = await BillOfLanding.findById(id).populate([
       "shipper",
       "consignee",
@@ -168,5 +184,27 @@ export async function getBillOfLandingById(
   } catch (error) {
     console.error("Error fetching Bill of Landing:", error);
     return null;
+  }
+}
+
+export async function deleteBillOfLading(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await dbConnect();
+
+    const session = await auth();
+    const user = session?.user;
+    await checkPermission(user?.role ?? "USER", "bils", "delete");
+    const result = await BillOfLanding.findByIdAndDelete(id);
+
+    if (!result) {
+      return { success: false, error: "Bill of Lading not found" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting Bill of Lading:", error);
+    return { success: false, error: "Failed to delete Bill of Lading" };
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +46,6 @@ import {
   Edit,
   Trash,
   Download,
-  MoreHorizontal,
   Filter,
   Search,
   Plus,
@@ -54,65 +53,29 @@ import {
 import { format } from "date-fns";
 import { Label } from "@/components/ui/label";
 import { enqueueSnackbar } from "notistack";
+import {
+  getReports,
+  createReport,
+  updateReport,
+  deleteReport,
+} from "@/actions/report";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 interface Report {
-  id: string;
+  _id: string;
   title: string;
   content: string;
-  createdAt: Date;
+  createdAt: string;
   status: "draft" | "in-review" | "completed";
   employeeName: string;
 }
 
-// Mock data
-const initialReports: Report[] = [
-  {
-    id: "1",
-    title: "Weekly Sales Report",
-    content: "Completed all sales targets for the week. Total revenue: $15,000",
-    createdAt: new Date(2023, 4, 15),
-    status: "completed",
-    employeeName: "John Doe",
-  },
-  {
-    id: "2",
-    title: "Customer Service Feedback",
-    content: "Addressed 25 customer inquiries and resolved 20 tickets.",
-    createdAt: new Date(2023, 4, 16),
-    status: "in-review",
-    employeeName: "Jane Smith",
-  },
-  {
-    id: "3",
-    title: "Marketing Campaign Progress",
-    content:
-      "Started new social media campaign. Initial metrics show good engagement.",
-    createdAt: new Date(2023, 4, 17),
-    status: "draft",
-    employeeName: "Mike Johnson",
-  },
-  {
-    id: "4",
-    title: "Inventory Check",
-    content:
-      "Completed inventory audit. Found 5 discrepancies that need review.",
-    createdAt: new Date(2023, 4, 18),
-    status: "draft",
-    employeeName: "Sarah Williams",
-  },
-  {
-    id: "5",
-    title: "Team Meeting Summary",
-    content:
-      "Conducted weekly team meeting. Discussed project timelines and resource allocation.",
-    createdAt: new Date(2023, 4, 19),
-    status: "in-review",
-    employeeName: "John Doe",
-  },
-];
+export const dynamic = "force-dynamic";
 
 const Reports = () => {
-  const [reports, setReports] = useState<Report[]>(initialReports);
+  const [reports, setReports] = useState<Report[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isNewReportDialogOpen, setIsNewReportDialogOpen] = useState(false);
@@ -127,17 +90,31 @@ const Reports = () => {
     content: "",
     status: "draft",
   });
+  const [loading, setLoading] = useState(false);
 
-  // Filter reports based on search query and status
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const data = await getReports();
+      setReports(data);
+    } catch (error) {
+      enqueueSnackbar("Failed to fetch reports", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredReports = reports.filter((report) => {
     const matchesSearch =
       report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       report.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
-
     const matchesStatus =
       statusFilter === "all" || report.status === statusFilter;
-
     return matchesSearch && matchesStatus;
   });
 
@@ -149,26 +126,27 @@ const Reports = () => {
     setStatusFilter(value);
   };
 
-  const handleNewReportSubmit = () => {
+  const handleNewReportSubmit = async () => {
     if (!newReport.title || !newReport.content) {
-      enqueueSnackbar("Export deleted successfully", { variant: "success" });
+      enqueueSnackbar("Title and content are required", { variant: "error" });
       return;
     }
 
-    const report: Report = {
-      id: Date.now().toString(),
-      title: newReport.title,
-      content: newReport.content,
-      createdAt: new Date(),
-      status: newReport.status,
-      employeeName: "Current User", // In a real app, this would be the logged-in user
-    };
-
-    setReports([report, ...reports]);
-    setNewReport({ title: "", content: "", status: "draft" });
-    setIsNewReportDialogOpen(false);
-
-    enqueueSnackbar("Export deleted successfully", { variant: "success" });
+    try {
+      setLoading(true);
+      await createReport({
+        ...newReport,
+        employeeName: "Current User", // Replace with actual authenticated user
+      });
+      setNewReport({ title: "", content: "", status: "draft" });
+      setIsNewReportDialogOpen(false);
+      await fetchReports(); // Refresh reports
+      enqueueSnackbar("Report created successfully", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Failed to create report", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditReport = (report: Report) => {
@@ -181,50 +159,126 @@ const Reports = () => {
     setIsEditReportDialogOpen(true);
   };
 
-  const handleUpdateReport = () => {
+  const handleUpdateReport = async () => {
     if (!currentReport) return;
 
-    const updatedReports = reports.map((report) =>
-      report.id === currentReport.id
-        ? {
-            ...report,
-            title: newReport.title,
-            content: newReport.content,
-            status: newReport.status,
-          }
-        : report
-    );
-
-    setReports(updatedReports);
-    setIsEditReportDialogOpen(false);
-    setCurrentReport(null);
-    setNewReport({ title: "", content: "", status: "draft" });
-
-    enqueueSnackbar("Export deleted successfully", { variant: "success" });
+    try {
+      setLoading(true);
+      await updateReport(currentReport._id, newReport);
+      setIsEditReportDialogOpen(false);
+      setCurrentReport(null);
+      setNewReport({ title: "", content: "", status: "draft" });
+      await fetchReports();
+      enqueueSnackbar("Report updated successfully", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Failed to update report", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteReport = (id: string) => {
-    const updatedReports = reports.filter((report) => report.id !== id);
-    setReports(updatedReports);
-    enqueueSnackbar("Export deleted successfully", { variant: "success" });
+  const handleDeleteReport = async (id: string) => {
+    try {
+      setLoading(true);
+      await deleteReport(id);
+      await fetchReports();
+      enqueueSnackbar("Report deleted successfully", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Failed to delete report", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // For exports, we'll keep client-side simulation since Server Actions can't return files directly
   const exportToPDF = () => {
-    toast("Export Started");
+    try {
+      toast("Export Started");
+      const doc = new jsPDF();
 
-    // In a real app, this would call a PDF generation service
-    setTimeout(() => {
-      enqueueSnackbar("Export Complete", { variant: "info" });
-    }, 2000);
+      // Add title
+      doc.setFontSize(20);
+      doc.text("Reports", 105, 20, { align: "center" });
+
+      // Define table columns and rows
+      const tableColumn = ["Title", "Employee", "Date", "Status", "Content"];
+      const tableRows = filteredReports.map((report) => [
+        report.title,
+        report.employeeName,
+        format(new Date(report.createdAt), "MMM dd, yyyy"),
+        report.status === "in-review"
+          ? "In Review"
+          : report.status.charAt(0).toUpperCase() + report.status.slice(1),
+        report.content.substring(0, 50) +
+          (report.content.length > 50 ? "..." : ""), // Truncate long content
+      ]);
+
+      // Use autoTable
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 30,
+        styles: {
+          fontSize: 10,
+          cellPadding: 2,
+        },
+        headStyles: {
+          fillColor: [100, 100, 100], // Gray header background
+          textColor: [255, 255, 255], // White text
+        },
+        columnStyles: {
+          0: { cellWidth: 40 }, // Title
+          1: { cellWidth: 30 }, // Employee
+          2: { cellWidth: 30 }, // Date
+          3: { cellWidth: 25 }, // Status
+          4: { cellWidth: 65 }, // Content
+        },
+        didDrawPage: (data: any) => {
+          // Add page numbers
+          const pageCount = doc.internal.pages;
+          doc.setFontSize(10);
+          doc.text(`Page ${data.pageNumber} of ${pageCount}`, 190, 285, {
+            align: "right",
+          });
+        },
+      });
+
+      doc.save("reports.pdf");
+      enqueueSnackbar("PDF Export Complete", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("PDF Export Failed", { variant: "error" });
+    }
   };
 
   const exportToExcel = () => {
-    toast("Export Started");
+    try {
+      toast("Export Started");
+      const worksheetData = filteredReports.map((report) => ({
+        Title: report.title,
+        Employee: report.employeeName,
+        Date: format(new Date(report.createdAt), "MMM dd, yyyy"),
+        Status: report.status,
+        Content: report.content,
+      }));
 
-    // In a real app, this would call an Excel generation service
-    setTimeout(() => {
-      enqueueSnackbar("Export Complete", { variant: "info" });
-    }, 2000);
+      const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
+
+      // Add headers styling (optional)
+      worksheet["!cols"] = [
+        { wch: 30 }, // Title
+        { wch: 20 }, // Employee
+        { wch: 15 }, // Date
+        { wch: 15 }, // Status
+        { wch: 50 }, // Content
+      ];
+
+      XLSX.writeFile(workbook, "reports.xlsx");
+      enqueueSnackbar("Excel Export Complete", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Excel Export Failed", { variant: "error" });
+    }
   };
 
   return (
@@ -236,16 +290,16 @@ const Reports = () => {
           onOpenChange={setIsNewReportDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button disabled={loading}>
               <Plus className="mr-2 h-4 w-4" />
               New Report
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[525px]">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Report</DialogTitle>
               <DialogDescription>
-                Submit a new report about your daily activities.
+                Submit a new report about your activities.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -258,6 +312,7 @@ const Reports = () => {
                     setNewReport({ ...newReport, title: e.target.value })
                   }
                   placeholder="Report title"
+                  disabled={loading}
                 />
               </div>
               <div className="grid gap-2">
@@ -270,6 +325,7 @@ const Reports = () => {
                   }
                   placeholder="Describe your activities..."
                   className="min-h-[150px]"
+                  disabled={loading}
                 />
               </div>
               <div className="grid gap-2">
@@ -279,6 +335,7 @@ const Reports = () => {
                   onValueChange={(value: "draft" | "in-review" | "completed") =>
                     setNewReport({ ...newReport, status: value })
                   }
+                  disabled={loading}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
@@ -295,14 +352,12 @@ const Reports = () => {
               <Button
                 variant="outline"
                 onClick={() => setIsNewReportDialogOpen(false)}
+                disabled={loading}
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleNewReportSubmit}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Submit
+              <Button onClick={handleNewReportSubmit} disabled={loading}>
+                {loading ? "Submitting..." : "Submit"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -323,12 +378,14 @@ const Reports = () => {
                 className="pl-10"
                 value={searchQuery}
                 onChange={handleSearchChange}
+                disabled={loading}
               />
             </div>
             <div className="flex gap-2">
               <Select
                 value={statusFilter}
                 onValueChange={handleStatusFilterChange}
+                disabled={loading}
               >
                 <SelectTrigger className="w-[180px]">
                   <Filter className="mr-2 h-4 w-4" />
@@ -341,25 +398,18 @@ const Reports = () => {
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" disabled={loading}>
                     <Download className="mr-2 h-4 w-4" />
                     Export
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-white">
-                  <DropdownMenuItem
-                    onClick={exportToPDF}
-                    className="cursor-pointer"
-                  >
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={exportToPDF}>
                     Export as PDF
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={exportToExcel}
-                    className="cursor-pointer"
-                  >
+                  <DropdownMenuItem onClick={exportToExcel}>
                     Export as Excel
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -379,7 +429,13 @@ const Reports = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredReports.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">
+                    Loading reports...
+                  </TableCell>
+                </TableRow>
+              ) : filteredReports.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
                     No reports found. Create a new report to get started.
@@ -387,7 +443,7 @@ const Reports = () => {
                 </TableRow>
               ) : (
                 filteredReports.map((report) => (
-                  <TableRow key={report.id}>
+                  <TableRow key={report._id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center">
                         <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -396,16 +452,16 @@ const Reports = () => {
                     </TableCell>
                     <TableCell>{report.employeeName}</TableCell>
                     <TableCell>
-                      {format(report.createdAt, "MMM dd, yyyy")}
+                      {format(new Date(report.createdAt), "MMM dd, yyyy")}
                     </TableCell>
                     <TableCell>
                       <div
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           report.status === "completed"
-                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                            ? "bg-green-100 text-green-800"
                             : report.status === "in-review"
-                            ? "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
-                            : "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
                         {report.status === "in-review"
@@ -421,15 +477,15 @@ const Reports = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEditReport(report)}
-                            className="hover:bg-muted"
+                            disabled={loading}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDeleteReport(report.id)}
-                            className="hover:bg-destructive/90 hover:text-destructive-foreground"
+                            onClick={() => handleDeleteReport(report._id)}
+                            disabled={loading}
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -448,12 +504,11 @@ const Reports = () => {
         </CardContent>
       </Card>
 
-      {/* Edit Report Dialog */}
       <Dialog
         open={isEditReportDialogOpen}
         onOpenChange={setIsEditReportDialogOpen}
       >
-        <DialogContent className="sm:max-w-[525px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Report</DialogTitle>
             <DialogDescription>Make changes to your report.</DialogDescription>
@@ -467,6 +522,7 @@ const Reports = () => {
                 onChange={(e) =>
                   setNewReport({ ...newReport, title: e.target.value })
                 }
+                disabled={loading}
               />
             </div>
             <div className="grid gap-2">
@@ -478,6 +534,7 @@ const Reports = () => {
                   setNewReport({ ...newReport, content: e.target.value })
                 }
                 className="min-h-[150px]"
+                disabled={loading}
               />
             </div>
             <div className="grid gap-2">
@@ -487,6 +544,7 @@ const Reports = () => {
                 onValueChange={(value: "draft" | "in-review" | "completed") =>
                   setNewReport({ ...newReport, status: value })
                 }
+                disabled={loading}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
@@ -503,15 +561,12 @@ const Reports = () => {
             <Button
               variant="outline"
               onClick={() => setIsEditReportDialogOpen(false)}
-              className="hover:bg-muted"
+              disabled={loading}
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleUpdateReport}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Save Changes
+            <Button onClick={handleUpdateReport} disabled={loading}>
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

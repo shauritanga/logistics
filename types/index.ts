@@ -1,4 +1,4 @@
-import { Client } from "@/app/dashboard/clients/components/ClientTable";
+// import { Client } from "@/app/dashboard/clients/components/ClientTable";
 
 export type ActionResponse = {
   success: boolean;
@@ -99,6 +99,7 @@ export type Invoice = {
       quantity: number;
       unitPrice: number;
       total: number;
+      currency: string;
     }
   ];
   subtotal: number;
@@ -173,4 +174,80 @@ export interface BillOfLandingResponse extends Document {
     file?: any;
   };
   createdAt: Date;
+}
+
+export interface Transaction {
+  _id: string;
+  client: string;
+  transactionDate: Date;
+  status: "pending" | "approved" | "rejected";
+  amount: number;
+  category: "payments" | "expenses";
+  currency: "USD" | "TZS";
+  description: string;
+}
+
+export interface Client {
+  _id: string;
+  name: string;
+  district: string;
+  region: string;
+  streetAddress: string;
+  country: string;
+  email: string;
+  tin: string;
+  vat: string;
+  phone: string;
+}
+
+export interface Container {
+  containerNumber: string;
+  tareWeight: number;
+  grossWeight: number;
+}
+
+export interface Good {
+  description: string;
+  quantity: number;
+  weight: number;
+  value?: number;
+  containerReference?: string;
+}
+
+export interface BillOfLading {
+  _id: string;
+  bolNumber: string;
+  countryLastConsignment: string;
+  countryOfExeport: string;
+  entryOffice: string;
+  containers: Container[];
+  goods: Good[];
+  freightCharges: {
+    amount: number;
+    currency: string;
+  };
+  insurance: {
+    amount: number;
+    currency: string;
+  };
+  term: {
+    code: string;
+    place: string;
+  };
+  tansad: {
+    number: string;
+    date: Date;
+  };
+  portOfLoading: string;
+  portOfDischarge: string;
+  deliveryPlace: string;
+  arrivalDate: Date;
+  releasedDate: string;
+  shipper: Client;
+  notifyParty: Client;
+  consignee: Client;
+  shippingLine: string;
+  shippingOrder: string;
+  tradingCountry: string;
+  vessleName: string;
 }
